@@ -1,0 +1,84 @@
+/** Research experience, teaching & mentoring, academic service, and education. */
+
+export interface Experience {
+  org: string;
+  orgUrl?: string;
+  role: string;
+  unit: string;
+  period: string;
+  supervisor?: string;
+  points: string[];
+}
+
+export const researchExperience: Experience[] = [
+  {
+    org: "Pennsylvania State University",
+    orgUrl: "https://ist.psu.edu/",
+    role: "Research Intern (Remote)",
+    unit: "Human Signal in Intelligence, Verification, and Empowerment (HIVE) Lab, College of Information Sciences & Technology",
+    period: "May 2026 – Present",
+    points: [
+      "Leading a study on age-verification technology: how non-expert users behave toward and reason about different age-verification methods, and how this shapes their comprehension of privacy and security.",
+    ],
+  },
+  {
+    org: "BRAC University",
+    orgUrl: "https://cse.sds.bracu.ac.bd/faculty_profile/299/md_ishmam_tasin#Biography",
+    role: "Graduate Research Assistant (Full Time)",
+    unit: "Department of Computer Science & Engineering",
+    period: "Oct 2023 – Present",
+    supervisor: "Prof. Farida Chowdhury",
+    points: [
+      "Research on blockchain-based decentralized finance and self-custodial crypto wallets, focusing on security, usability, and inclusivity for marginalized and low-literate users.",
+      "Qualitative (interviews, focus groups, contextual inquiry) and quantitative (survey) studies on socio-technical issues involving women, marginalized communities, low-literate users, and people with accessibility needs.",
+      "Development and evaluation of XR-based authentication systems against shoulder-surfing and keystroke-inference attacks, validated through formal analysis and a user study (n = 30).",
+      "User studies evaluating proposed and existing systems for effectiveness, acceptance, adoption, and trust.",
+      "Assisted in preparing a research grant proposal (over USD 150k) for the ICSETEP project funded by the University Grants Commission of Bangladesh.",
+    ],
+  },
+];
+
+export const teaching = [
+  "Mentored undergraduate thesis students on research processes and methodology, scoping, theoretical framing, and publishing in peer-reviewed venues.",
+  "Assisted in conducting and evaluating laboratory sessions for Technical Communication (CSE391), guiding students through LaTeX, literature reviews, and research-paper writing.",
+  "Conducted seminars and learning sessions on research methodology for the Human Centered Computing Society (HCCS) research group at BRAC University.",
+  "Prepared research tutorials and resources on HCI, blockchain, AR/VR, and usable security and privacy.",
+];
+
+export const peerReviewing = [
+  {
+    venue: "ACM CHI 2027",
+    detail: "Peer reviewer, ACM CHI Conference on Human Factors in Computing Systems.",
+    href: "https://chi2027.acm.org/",
+  },
+  {
+    venue: "ACM COMPASS 2026",
+    detail: "Reviewed 2 research papers, ACM SIGCAS/SIGCHI Conference on Computing and Sustainable Societies.",
+  },
+  {
+    venue: "IEEE BCCA 2026",
+    detail: "Reviewed 3 research papers, International Conference on Blockchain Computing and Applications.",
+  },
+];
+
+export const communityService = [
+  {
+    role: "Executive Member",
+    org: "Human-Centered Computing and Society (HCCS) Lab, BRAC University",
+    href: "https://sites.google.com/bracu.ac.bd/hccs/home",
+  },
+];
+
+export const education = {
+  degree: "B.Sc. in Computer Science",
+  school: "BRAC University",
+  location: "Dhaka, Bangladesh",
+  period: "Jan 2019 – Sept 2023",
+  cgpa: "3.71/4.00",
+  finalSixCgpa: "3.81/4.00",
+  thesis:
+    "Revolutionizing microfinance: a blockchain-driven decentralized finance (DeFi) model for collateral-free loans",
+  thesisUrl: "https://dspace.bracu.ac.bd/xmlui/handle/10361/21985",
+  advisor: "Professor Md Sadek Ferdous",
+  advisorUrl: "https://www.bracu.ac.bd/about/people/md-sadek-ferdous-phd",
+};
