@@ -32,7 +32,8 @@
     "status": "Under review (2nd round)",
     "stage": "review",
     "venue": "ACM Conference on Computer-Supported Cooperative Work and Social Computing (CSCW 2027)",
-    "area": "Trust & Agency · Global South"
+    "area": "Trust & Agency · Global South",
+    "pdf": "/papers/blood-donation-cscw2027.pdf"
   },
   {
     "id": "trustchain",
@@ -109,7 +110,7 @@
   },
   {
     "id": "llm-trust",
-    "title": "Usability, Privacy, and Trust in Large Language Models: Perspectives from Non-Technical Professionals in Academia, Banking, and Healthcare",
+    "title": "The Professional Usability Gap: Investigating LLMs Usage Under Limited Trust, Privacy, and Contextual Fit",
     "authors": [
       "Md Ashraful Hoque",
       "Ahsanul Fahim Ahmed",
@@ -121,8 +122,9 @@
     ],
     "status": "Under review",
     "stage": "review",
-    "venue": "ACM SIGIR Conference on Human Information Interaction and Retrieval (CHIIR)",
-    "area": "Usable Privacy · Emerging Technologies"
+    "venue": "ACM SIGIR Conference on Human Information Interaction and Retrieval (CHIIR 2027)",
+    "area": "Usable Privacy · Emerging Technologies",
+    "pdf": "/papers/llm-trust-chiir2027.pdf"
   },
   {
     "id": "rationality",
