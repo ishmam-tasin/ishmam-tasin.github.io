@@ -1,5 +1,29 @@
 [
   {
+    "id": "authvr-trustcom-2025",
+    "title": "AuthVR: Securing Authentication Against Shoulder Surfing and Keystroke Inference Attacks using Virtual Reality",
+    "authors": [
+      "Md. Yeasin Ali",
+      "Touhid Rahaman Udoy",
+      "Md Ishmam Tasin",
+      "Masum Alam Nahid",
+      "Fairuz Rahaman Chowdhury",
+      "Farida Chowdhury",
+      "Md Sadek Ferdous"
+    ],
+    "year": 2025,
+    "venue": "24th IEEE International Conference on Trust, Security and Privacy in Computing and Communications (TrustCom 2025)",
+    "venueShort": "IEEE TrustCom 2025",
+    "type": "Conference",
+    "status": "Published",
+    "area": "Usable Security · XR Authentication",
+    "links": {
+      "paper": "http://computer.org/csdl/proceedings-article/trustcom/2025/653200c087/2dMlk1X5Zle",
+      "pdf": "https://drive.google.com/file/d/1bg-05030gmat6YQFsWzCSeG1u-xkjO8U/view?usp=sharing"
+    },
+    "selected": true
+  },
+  {
     "id": "self-custody-chira-2026",
     "title": "Self-Custody in an Unsupported Ecosystem: Usability and Security Challenges Among Novice and Experienced Crypto Wallet Users in Bangladesh",
     "authors": [
@@ -64,30 +88,6 @@
     "links": {
       "pdf": "https://drive.google.com/file/d/12pK7hJpLQoC2KFauWlhLl9WdFaiyoyT4/view?usp=sharing"
     }
-  },
-  {
-    "id": "authvr-trustcom-2025",
-    "title": "AuthVR: Securing Authentication Against Shoulder Surfing and Keystroke Inference Attacks using Virtual Reality",
-    "authors": [
-      "Md. Yeasin Ali",
-      "Touhid Rahaman Udoy",
-      "Md Ishmam Tasin",
-      "Masum Alam Nahid",
-      "Fairuz Rahaman Chowdhury",
-      "Farida Chowdhury",
-      "Md Sadek Ferdous"
-    ],
-    "year": 2025,
-    "venue": "24th IEEE International Conference on Trust, Security and Privacy in Computing and Communications (TrustCom 2025)",
-    "venueShort": "IEEE TrustCom 2025",
-    "type": "Conference",
-    "status": "Published",
-    "area": "Usable Security · XR Authentication",
-    "links": {
-      "paper": "http://computer.org/csdl/proceedings-article/trustcom/2025/653200c087/2dMlk1X5Zle",
-      "pdf": "https://drive.google.com/file/d/1bg-05030gmat6YQFsWzCSeG1u-xkjO8U/view?usp=sharing"
-    },
-    "selected": true
   },
   {
     "id": "ar-atm-ieee-access",
