@@ -78,5 +78,7 @@ export const navItems = [
   { label: "Ongoing Work", to: "/ongoing" },
   { label: "Awards & Recognition", to: "/awards" },
   { label: "Academic Service", to: "/service" },
-  { label: "CV", to: "/cv" },
 ] as const;
+
+/** External nav links (open in a new tab). The CV opens the PDF directly. */
+export const navExternal = [{ label: "CV", href: cvAsset.url }] as const;

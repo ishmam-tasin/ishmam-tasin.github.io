@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
-import { navItems, profile } from "@/content/site";
+import { navExternal, navItems, profile } from "@/content/site";
 
 export function SiteNav() {
   const [open, setOpen] = useState(false);
@@ -29,6 +29,18 @@ export function SiteNav() {
                 >
                   {item.label}
                 </Link>
+              </li>
+            ))}
+            {navExternal.map((item) => (
+              <li key={item.href}>
+                <a
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-sm px-3 py-1.5 text-[0.9375rem] text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
+                >
+                  {item.label}
+                </a>
               </li>
             ))}
           </ul>
@@ -64,6 +76,19 @@ export function SiteNav() {
                 >
                   {item.label}
                 </Link>
+              </li>
+            ))}
+            {navExternal.map((item) => (
+              <li key={item.href}>
+                <a
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block py-2.5 text-base text-muted-foreground hover:text-foreground"
+                  onClick={() => setOpen(false)}
+                >
+                  {item.label}
+                </a>
               </li>
             ))}
           </ul>

@@ -46,7 +46,7 @@ function Index() {
             alt={profile.photoAlt}
             width={520}
             height={520}
-            className="aspect-square w-full max-w-65 rounded-md border object-cover"
+            className="aspect-square w-full max-w-65 rounded-md border object-cover object-top"
           />
           <div className="flex flex-col gap-3 max-w-65">
             <div className="inline-flex items-center justify-between gap-2 border border-border bg-card px-3 py-2 rounded text-[0.85rem] font-medium w-full shadow-sm">
