@@ -16,7 +16,7 @@ export const researchExperience: Experience[] = [
     orgUrl: "https://ist.psu.edu/",
     role: "Research Intern (Remote)",
     unit: "Human Signal in Intelligence, Verification, and Empowerment (HIVE) Lab, College of Information Sciences & Technology",
-    period: "May 2026 – Present",
+    period: "June 2026 – Present",
     points: [
       "Leading a study on age-verification technology: how non-expert users behave toward and reason about different age-verification methods, and how this shapes their comprehension of privacy and security.",
     ],
