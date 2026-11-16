@@ -2,6 +2,13 @@
 
 All factual content lives in this folder; the visual components never contain names, titles, or dates.
 
+## Admin panel
+
+News, publications, under-review/ongoing work, research projects, collaborations and the
+Research page text are stored as JSON in `data/` and can be edited at `/admin_panel.html`.
+The panel commits the JSON to GitHub, and `.github/workflows/deploy.yml` rebuilds and
+redeploys the site on every push to `main`. You can also edit the JSON files by hand.
+
 | File | What it controls |
 | --- | --- |
 | `site.ts` | Name, intro paragraph, positions, email, photo, CV file, external links, navigation. Set a link to `""` to hide it. |
@@ -10,7 +17,7 @@ All factual content lives in this folder; the visual components never contain na
 | `research.ts` | Overview paragraphs, themes, research questions, contexts, and selected projects. |
 | `news.ts` | Updates timeline (newest first). Add a new object at the top. |
 | `awards.ts` | Academic distinctions and competitions. |
-| `experience.ts` | Research experience, teaching, peer reviewing, education. |
+| `experience.ts` | Research experience, teaching, peer reviewing. |
 
 ## Replacing images
 

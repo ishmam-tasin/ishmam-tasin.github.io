@@ -1,4 +1,4 @@
-/** Research experience, teaching & mentoring, academic service, and education. */
+/** Research experience, teaching & mentoring and academic service. */
 
 export interface Experience {
   org: string;
@@ -53,11 +53,13 @@ export const peerReviewing = [
   },
   {
     venue: "ACM COMPASS 2026",
-    detail: "Reviewed 2 research papers, ACM SIGCAS/SIGCHI Conference on Computing and Sustainable Societies.",
+    detail:
+      "Reviewed 2 research papers, ACM SIGCAS/SIGCHI Conference on Computing and Sustainable Societies.",
   },
   {
     venue: "IEEE BCCA 2026",
-    detail: "Reviewed 3 research papers, International Conference on Blockchain Computing and Applications.",
+    detail:
+      "Reviewed 3 research papers, International Conference on Blockchain Computing and Applications.",
   },
 ];
 
@@ -68,17 +70,3 @@ export const communityService = [
     href: "https://sites.google.com/bracu.ac.bd/hccs/home",
   },
 ];
-
-export const education = {
-  degree: "B.Sc. in Computer Science",
-  school: "BRAC University",
-  location: "Dhaka, Bangladesh",
-  period: "Jan 2019 – Sept 2023",
-  cgpa: "3.71/4.00",
-  finalSixCgpa: "3.81/4.00",
-  thesis:
-    "Revolutionizing microfinance: a blockchain-driven decentralized finance (DeFi) model for collateral-free loans",
-  thesisUrl: "https://dspace.bracu.ac.bd/xmlui/handle/10361/21985",
-  advisor: "Professor Md Sadek Ferdous",
-  advisorUrl: "https://www.bracu.ac.bd/about/people/md-sadek-ferdous-phd",
-};

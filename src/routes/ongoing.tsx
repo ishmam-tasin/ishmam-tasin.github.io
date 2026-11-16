@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { pageHead } from "@/components/site/head";
 import { PageHeader, Section } from "@/components/site/Section";
 import { OngoingCard } from "@/components/site/OngoingCard";
-import { ongoing } from "@/content/ongoing";
+import { inPreparation, underReview } from "@/content/ongoing";
 
 export const Route = createFileRoute("/ongoing")({
   head: () =>
@@ -16,9 +16,6 @@ export const Route = createFileRoute("/ongoing")({
 });
 
 function OngoingPage() {
-  const underReview = ongoing.filter((o) => o.status.startsWith("Under review") || o.status === "In conference");
-  const inPreparation = ongoing.filter((o) => !underReview.includes(o));
-
   return (
     <>
       <PageHeader

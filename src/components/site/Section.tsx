@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, type LinkProps } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 
 interface SectionProps {
@@ -7,16 +7,29 @@ interface SectionProps {
   title: string;
   eyebrow?: string;
   intro?: ReactNode;
-  /** Optional "View all →" link (internal route). */
+  /** Optional "View all " link (internal route). */
   moreTo?: string;
   moreLabel?: string;
   className?: string;
   children: ReactNode;
 }
 
-export function Section({ id, title, eyebrow, intro, moreTo, moreLabel, className, children }: SectionProps) {
+export function Section({
+  id,
+  title,
+  eyebrow,
+  intro,
+  moreTo,
+  moreLabel,
+  className,
+  children,
+}: SectionProps) {
   return (
-    <section id={id} className={cn("py-12 md:py-16", className)} aria-labelledby={id ? `${id}-title` : undefined}>
+    <section
+      id={id}
+      className={cn("py-12 md:py-16", className)}
+      aria-labelledby={id ? `${id}-title` : undefined}
+    >
       <div className="mb-8 flex flex-col gap-2 border-b pb-4 md:flex-row md:items-end md:justify-between">
         <div>
           {eyebrow && <p className="eyebrow mb-1">{eyebrow}</p>}
@@ -26,8 +39,11 @@ export function Section({ id, title, eyebrow, intro, moreTo, moreLabel, classNam
           {intro && <div className="mt-2 max-w-3xl text-muted-foreground">{intro}</div>}
         </div>
         {moreTo && (
-          <Link to={moreTo} className="link-academic shrink-0 text-sm">
-            {moreLabel ?? "View all"} →
+          <Link
+            to={moreTo as NonNullable<LinkProps["to"]>}
+            className="link-academic shrink-0 text-sm"
+          >
+            {moreLabel ?? "View all"}
           </Link>
         )}
       </div>

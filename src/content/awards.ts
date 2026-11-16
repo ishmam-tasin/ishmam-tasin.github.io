@@ -25,7 +25,8 @@ export const academicDistinctions: Award[] = [
     title: "Merit Scholarship (Undergraduate)",
     year: "2019",
     org: "BRAC University",
-    description: "Awarded each semester to undergraduate students demonstrating outstanding academic performance.",
+    description:
+      "Awarded each semester to undergraduate students demonstrating outstanding academic performance.",
   },
   {
     title: "National Merit Scholarship, Higher Secondary Certificate (HSC)",

@@ -18,14 +18,21 @@ export function OngoingCard({ item }: { item: OngoingProject }) {
         <p className="mt-2 text-[0.95rem]">
           <span className="text-muted-foreground">{item.status}: </span>
           {item.venueUrl ? (
-            <a href={item.venueUrl} target="_blank" rel="noopener noreferrer" className="link-academic italic">
+            <a
+              href={item.venueUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="link-academic italic"
+            >
               {item.venue}
             </a>
           ) : (
             <span className="italic">{item.venue}</span>
           )}
         </p>
-        {item.description && <p className="mt-2 text-[0.95rem] text-muted-foreground">{item.description}</p>}
+        {item.description && (
+          <p className="mt-2 text-[0.95rem] text-muted-foreground">{item.description}</p>
+        )}
         {item.pdf && (
           <div className="mt-4">
             <a href={item.pdf} target="_blank" rel="noopener noreferrer" className="btn-outline">
@@ -34,7 +41,11 @@ export function OngoingCard({ item }: { item: OngoingProject }) {
           </div>
         )}
       </div>
-      <Thumbnail src={item.image} alt={item.imageAlt} className="aspect-[4/3] md:aspect-auto md:h-full md:max-h-44" />
+      <Thumbnail
+        src={item.image}
+        alt={item.imageAlt}
+        className="aspect-4/3 md:aspect-auto md:h-full md:max-h-44"
+      />
     </article>
   );
 }

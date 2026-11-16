@@ -18,7 +18,10 @@ export const Route = createFileRoute("/awards")({
 function AwardsPage() {
   return (
     <>
-      <PageHeader title="Awards & Recognition" lede="Academic distinctions and competition results." />
+      <PageHeader
+        title="Awards & Recognition"
+        lede="Academic distinctions and competition results."
+      />
       <div className="container-content">
         <Section id="academic" title="Academic Distinctions">
           <AwardList items={academicDistinctions} />

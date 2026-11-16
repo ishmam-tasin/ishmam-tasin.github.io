@@ -1,0 +1,40 @@
+name: Deploy site
+
+# Rebuilds and publishes the site whenever `main` changes — including every
+# save made from the admin panel (/admin_panel.html).
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# A newer save cancels a build that is still running.
+concurrency:
+  group: deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm install --no-audit --no-fund
+
+      - run: npm run build
+
+      # Lets deep links like /research load on GitHub Pages.
+      - run: cp .output/public/index.html .output/public/404.html
+
+      - uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .output/public
+          publish_branch: gh-pages

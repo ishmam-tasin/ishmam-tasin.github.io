@@ -1,0 +1,68 @@
+[
+  {
+    "id": "self-custody",
+    "title": "Self-custody and crypto-wallet usability in an unsupported ecosystem",
+    "area": "Usable Security · Decentralized Systems · Bangladesh",
+    "description": "Examines the usability and security challenges that novice and experienced crypto-wallet users face in Bangladesh, where self-custodial tools are used without formal institutional or regulatory support, and what this reveals about the assumptions built into wallet design.",
+    "role": "Lead author.",
+    "methodology": "Qualitative and quantitative user studies (interviews, surveys).",
+    "outcome": "Accepted at CHIRA 2026.",
+    "outcomeStatus": "Accepted",
+    "href": "/publications",
+    "selected": true
+  },
+  {
+    "id": "xr-authentication",
+    "title": "XR-based authentication against shoulder surfing and keystroke inference",
+    "area": "Usable Security · Immersive Technologies",
+    "description": "Design and evaluation of virtual- and augmented-reality authentication mechanisms (AuthVR; an AR-based ATM authentication scheme) that aim to resist observation attacks while remaining usable for ordinary users.",
+    "role": "Co-author; contributed to system development and evaluation.",
+    "methodology": "Formal analysis and a user study (n = 30).",
+    "outcome": "Published at IEEE TrustCom 2025 and in IEEE Access.",
+    "outcomeStatus": "Published",
+    "href": "/publications",
+    "selected": true
+  },
+  {
+    "id": "messaging-dapps",
+    "title": "Why users struggle with decentralized messaging applications",
+    "area": "Usable Security · Decentralized Systems",
+    "description": "Investigates the friction non-expert users encounter with messaging DApps—identity, addressing, and key handling—and why familiar mental models from centralized platforms break down.",
+    "role": "Co-first author (equal contribution).",
+    "outcome": "Accepted at IEEE DAPPS 2026.",
+    "outcomeStatus": "Accepted",
+    "href": "/publications",
+    "selected": true
+  },
+  {
+    "id": "women-cybersecurity",
+    "title": "Women's cybersecurity practices, awareness, and vulnerabilities in Bangladesh",
+    "area": "Human-Centered Cybersecurity · Gender · HCI4D",
+    "description": "Studies how women in Bangladesh navigate online safety—their everyday practices, awareness, and the vulnerabilities they encounter—to inform more context-sensitive security support.",
+    "role": "Co-author.",
+    "outcome": "To appear at CHIRA 2025.",
+    "outcomeStatus": "To appear",
+    "href": "/publications",
+    "selected": true
+  },
+  {
+    "id": "inclusive-mfs",
+    "title": "Inclusive mobile financial services for low-literate users",
+    "area": "HCI4D · Digital Financial Services",
+    "description": "Explores how smartphone-based mobile financial services can be designed so that low-literate users can move from dependence on agents toward independent, autonomous use.",
+    "role": "Co-author.",
+    "outcome": "To appear at COMPASS 2026.",
+    "outcomeStatus": "To appear",
+    "href": "/publications"
+  },
+  {
+    "id": "age-verification",
+    "title": "Non-expert behaviour and attitudes toward age-verification technologies",
+    "area": "Usable Privacy · Emerging Technologies",
+    "description": "Ongoing work at the HIVE Lab, Penn State, examining how non-expert users behave toward and reason about different age-verification methods, and how this shapes their perception of privacy and security.",
+    "role": "Leading the study as Research Intern.",
+    "outcome": "Ongoing (HIVE Lab, Pennsylvania State University).",
+    "outcomeStatus": "Ongoing",
+    "href": "/ongoing"
+  }
+]

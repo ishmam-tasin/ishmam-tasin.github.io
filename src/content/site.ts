@@ -3,14 +3,40 @@
  * Edit this file to update your name, tagline, positions, and contact links.
  * Leave a URL as an empty string ("") to hide that link everywhere.
  */
+import React from "react";
 import profileAsset from "@/assets/profile.jpg.asset.json";
 import cvAsset from "@/assets/cv.pdf.asset.json";
 
 export const profile = {
   name: "Md Ishmam Tasin",
   shortTitle: "Researcher in HCI, Usable Security & Privacy",
-  intro:
-    "I am a Computer Science researcher working at the intersection of Human-Computer Interaction, Usable Security & Privacy, and socio-technical systems. My research examines how people understand, interact with, and respond to security- and privacy-sensitive technologies—particularly when those technologies are complex, unfamiliar, or emerging, and when they are used in underrepresented contexts such as Bangladesh and the wider Global South.",
+  intro: React.createElement(
+    React.Fragment,
+    null,
+    "I am a Computer Science researcher working at the intersection of Human-Computer Interaction, Usable Security & Privacy, and socio-technical systems. Currently, I am a Remote Research Intern at the HIVE Lab, Pennsylvania State University working with ",
+    React.createElement(
+      "a",
+      {
+        href: "https://ist.psu.edu/directory/tfs5747",
+        target: "_blank",
+        rel: "noopener noreferrer",
+        className: "link-academic font-medium",
+      },
+      "Dr. Tanusree Sharma",
+    ),
+    ", and a Graduate Research Assistant at BRAC University under the supervision of ",
+    React.createElement(
+      "a",
+      {
+        href: "https://cse.bracu.ac.bd/faculty_profile/211/dr_farida_chowdhury",
+        target: "_blank",
+        rel: "noopener noreferrer",
+        className: "link-academic font-medium",
+      },
+      "Dr. Farida Chowdhury",
+    ),
+    ". My research examines how people understand, interact with, and respond to security- and privacy-sensitive technologies particularly when those technologies are complex, unfamiliar, or emerging, and when they are used in underrepresented contexts such as Bangladesh and the wider Global South.",
+  ),
   positions: [
     {
       role: "Research Intern",
@@ -33,10 +59,9 @@ export const profile = {
 };
 
 export const links = {
-  /** TODO: add your Google Scholar profile URL (not listed in the CV). */
-  scholar: "",
+  scholar: "https://scholar.google.com/citations?user=Xwrr0W4AAAAJ&hl=en",
   linkedin: "https://linkedin.com/in/ishmam-tasin-530661172",
-  github: "https://github.com/techopoly",
+  github: "",
   website: "https://cse.sds.bracu.ac.bd/faculty_profile/299/md_ishmam_tasin#Biography",
 };
 

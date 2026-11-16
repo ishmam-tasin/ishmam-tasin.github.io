@@ -29,7 +29,12 @@ function CvPage() {
         }
       />
       <div className="container-content py-10">
-        <object data={profile.cvUrl} type="application/pdf" className="h-[80vh] w-full rounded-md border" aria-label="CV PDF">
+        <object
+          data={profile.cvUrl}
+          type="application/pdf"
+          className="h-[80vh] w-full rounded-md border"
+          aria-label="CV PDF"
+        >
           <p className="p-6 text-muted-foreground">
             Your browser cannot display the PDF inline.{" "}
             <a href={profile.cvUrl} className="link-academic">

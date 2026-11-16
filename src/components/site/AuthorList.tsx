@@ -1,7 +1,7 @@
 import { profile } from "@/content/site";
 
 /** Renders an author list with the site owner's name in bold. Handles "Name*" markers. */
-export function AuthorList({ authors, note }: { authors: string[]; note?: string }) {
+export function AuthorList({ authors, note }: { authors: string[]; note?: string | undefined }) {
   return (
     <p className="text-[0.95rem] leading-relaxed text-muted-foreground">
       {authors.map((a, i) => {

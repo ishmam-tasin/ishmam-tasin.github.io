@@ -47,7 +47,11 @@ export function SiteNav() {
       </div>
 
       {open && (
-        <nav id="mobile-nav" aria-label="Primary mobile" className="border-t bg-background md:hidden">
+        <nav
+          id="mobile-nav"
+          aria-label="Primary mobile"
+          className="border-t bg-background md:hidden"
+        >
           <ul className="container-content flex flex-col py-2">
             {navItems.map((item) => (
               <li key={item.to}>

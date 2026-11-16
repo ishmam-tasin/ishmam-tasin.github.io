@@ -3,15 +3,23 @@ import { pageHead } from "@/components/site/head";
 import { PageHeader, Section } from "@/components/site/Section";
 import { ResearchCard } from "@/components/site/ResearchCard";
 import { ExperienceList } from "@/components/site/ExperienceList";
-import { researchContexts, researchOverview, researchProjects, researchQuestions, researchThemes } from "@/content/research";
-import { education, researchExperience, teaching } from "@/content/experience";
+import { OngoingCard } from "@/components/site/OngoingCard";
+import { underReview } from "@/content/ongoing";
+import {
+  researchContexts,
+  researchOverview,
+  researchProjects,
+  researchQuestions,
+  researchThemes,
+} from "@/content/research";
+import { researchExperience, teaching } from "@/content/experience";
 
 export const Route = createFileRoute("/research")({
   head: () =>
     pageHead({
       title: "Research",
       description:
-        "Research overview, themes, selected projects, experience, and education of Md Ishmam Tasin — human-centred security and privacy, HCI, and the Global South.",
+        "Research overview, themes, selected projects, and experience of Md Ishmam Tasin — human-centred security and privacy, HCI, and the Global South.",
       path: "/research",
     }),
   component: ResearchPage,
@@ -20,7 +28,10 @@ export const Route = createFileRoute("/research")({
 function ResearchPage() {
   return (
     <>
-      <PageHeader title="Research" lede="Research overview, themes, selected projects, experience, teaching, and education." />
+      <PageHeader
+        title="Research"
+        lede="Research overview, themes, selected projects, experience, and teaching."
+      />
       <div className="container-content">
         <Section id="overview" title="Research Overview">
           <div className="max-w-3xl space-y-4 leading-relaxed">
@@ -56,7 +67,12 @@ function ResearchPage() {
         <Section
           id="contexts"
           title="Research Contexts"
-          intro={<p>I investigate these questions across a range of technological and social contexts, including:</p>}
+          intro={
+            <p>
+              I investigate these questions across a range of technological and social contexts,
+              including:
+            </p>
+          }
         >
           <ul className="flex flex-wrap gap-2">
             {researchContexts.map((c) => (
@@ -75,6 +91,21 @@ function ResearchPage() {
           </div>
         </Section>
 
+        {underReview.length > 0 && (
+          <Section
+            id="under-review"
+            title="Under Review"
+            moreTo="/ongoing"
+            moreLabel="All ongoing work"
+          >
+            <div className="space-y-4">
+              {underReview.map((o) => (
+                <OngoingCard key={o.id} item={o} />
+              ))}
+            </div>
+          </Section>
+        )}
+
         <Section id="experience" title="Research Experience">
           <ExperienceList items={researchExperience} />
         </Section>
@@ -85,35 +116,6 @@ function ResearchPage() {
               <li key={t}>{t}</li>
             ))}
           </ul>
-        </Section>
-
-        <Section id="education" title="Education">
-          <div className="grid gap-2 md:grid-cols-[11rem_1fr] md:gap-8">
-            <p className="text-sm font-medium text-muted-foreground">{education.period}</p>
-            <div className="text-[0.98rem]">
-              <h3 className="font-sans text-base font-semibold">
-                {education.degree}, {education.school}
-              </h3>
-              <p className="text-muted-foreground">{education.location}</p>
-              <p className="mt-2">
-                CGPA: <strong>{education.cgpa}</strong>
-                <span className="text-muted-foreground"> · Final six semesters: </span>
-                <strong>{education.finalSixCgpa}</strong>
-              </p>
-              <p className="mt-2">
-                <span className="text-muted-foreground">Thesis: </span>
-                <a href={education.thesisUrl} target="_blank" rel="noopener noreferrer" className="link-academic font-medium">
-                  {education.thesis}
-                </a>
-              </p>
-              <p>
-                <span className="text-muted-foreground">Thesis advisor: </span>
-                <a href={education.advisorUrl} target="_blank" rel="noopener noreferrer" className="link-academic">
-                  {education.advisor}
-                </a>
-              </p>
-            </div>
-          </div>
         </Section>
       </div>
     </>

@@ -7,7 +7,8 @@ export const Route = createFileRoute("/service")({
   head: () =>
     pageHead({
       title: "Academic Service",
-      description: "Peer reviewing (ACM CHI, ACM COMPASS, IEEE BCCA) and research-community service of Md Ishmam Tasin.",
+      description:
+        "Peer reviewing (ACM CHI, ACM COMPASS, IEEE BCCA) and research-community service of Md Ishmam Tasin.",
       path: "/service",
     }),
   component: ServicePage,
@@ -24,7 +25,12 @@ function ServicePage() {
               <li key={r.venue} className="grid gap-1 py-4 md:grid-cols-[11rem_1fr] md:gap-6">
                 <h3 className="font-sans text-base font-semibold">
                   {r.href ? (
-                    <a href={r.href} target="_blank" rel="noopener noreferrer" className="hover:text-accent">
+                    <a
+                      href={r.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-accent"
+                    >
                       {r.venue}
                     </a>
                   ) : (
@@ -42,7 +48,12 @@ function ServicePage() {
               <li key={c.role} className="py-4 text-[0.98rem]">
                 <span className="font-semibold">{c.role}</span>
                 <span className="text-muted-foreground">, </span>
-                <a href={c.href} target="_blank" rel="noopener noreferrer" className="link-academic">
+                <a
+                  href={c.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="link-academic"
+                >
                   {c.org}
                 </a>
               </li>

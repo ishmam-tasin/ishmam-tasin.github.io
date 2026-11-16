@@ -1,11 +1,10 @@
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
-
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Design system — restrained academic palette.
+ * Design system   restrained academic palette.
  * Off-white paper background, charcoal text, one muted teal accent,
  * light warm-gray dividers. Serif headings, humanist sans body.
  */
@@ -15,29 +14,41 @@
   --radius-md: var(--radius);
   --radius-lg: calc(var(--radius) + 2px);
   --radius-xl: calc(var(--radius) + 6px);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
+
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
+
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
+
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+
   --color-placeholder: var(--placeholder);
   --color-placeholder-foreground: var(--placeholder-foreground);
+
   --font-sans: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
   --font-serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+
   --container-content: 72rem;
 }
 
@@ -45,23 +56,32 @@
   --radius: 0.25rem;
   --background: oklch(0.99 0.003 90);
   --foreground: oklch(0.24 0.012 260);
+
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.24 0.012 260);
+
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.24 0.012 260);
+
   --primary: oklch(0.24 0.012 260);
   --primary-foreground: oklch(0.99 0.003 90);
+
   --secondary: oklch(0.96 0.004 90);
   --secondary-foreground: oklch(0.3 0.012 260);
+
   --muted: oklch(0.955 0.004 90);
   --muted-foreground: oklch(0.5 0.012 260);
+
   --accent: oklch(0.45 0.07 200);
   --accent-foreground: oklch(0.99 0.003 90);
+
   --destructive: oklch(0.55 0.2 27);
   --destructive-foreground: oklch(0.99 0.003 90);
+
   --border: oklch(0.9 0.005 90);
   --input: oklch(0.9 0.005 90);
   --ring: oklch(0.45 0.07 200);
+
   --placeholder: oklch(0.94 0.006 90);
   --placeholder-foreground: oklch(0.62 0.01 260);
 }
@@ -115,6 +135,7 @@
   max-width: var(--container-content);
   margin-inline: auto;
   padding-inline: 1.25rem;
+
   @media (min-width: 640px) {
     padding-inline: 2rem;
   }
@@ -128,12 +149,13 @@
   text-underline-offset: 3px;
   text-decoration-color: oklch(0.45 0.07 200 / 0.4);
   transition: text-decoration-color 150ms ease;
+
   &:hover {
     text-decoration-color: var(--color-accent);
   }
 }
 
-/* Small outlined action (Paper, PDF, DOI …) */
+/* Small outlined action (Paper, PDF, DOI) */
 @utility btn-outline {
   display: inline-flex;
   align-items: center;
@@ -149,10 +171,12 @@
     border-color 150ms ease,
     color 150ms ease,
     background-color 150ms ease;
+
   &:hover {
     border-color: var(--color-accent);
     color: var(--color-accent);
   }
+
   &:focus-visible {
     outline: 2px solid var(--color-ring);
     outline-offset: 2px;
@@ -172,9 +196,11 @@
   color: var(--color-primary-foreground);
   background: var(--color-primary);
   transition: opacity 150ms ease;
+
   &:hover {
     opacity: 0.88;
   }
+
   &:focus-visible {
     outline: 2px solid var(--color-ring);
     outline-offset: 2px;
@@ -189,6 +215,7 @@
   transition:
     transform 180ms ease,
     border-color 180ms ease;
+
   &:hover {
     transform: translateY(-1px);
     border-color: oklch(0.82 0.008 90);
@@ -227,6 +254,23 @@
   font-weight: 600;
   color: var(--color-accent);
   background: oklch(0.45 0.07 200 / 0.07);
+}
+
+/* Custom scrollbar for news section */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: var(--color-muted);
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--color-muted-foreground);
+  border-radius: 4px;
+  opacity: 0.5;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-foreground);
 }
 
 /* Subtle entrance */

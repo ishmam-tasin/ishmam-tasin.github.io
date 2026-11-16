@@ -5,7 +5,15 @@ import { cn } from "@/lib/utils";
  * Image slot used by publication / project cards.
  * Pass `src` to replace the placeholder with a real figure or screenshot.
  */
-export function Thumbnail({ src, alt, className }: { src?: string; alt?: string; className?: string }) {
+export function Thumbnail({
+  src,
+  alt,
+  className,
+}: {
+  src?: string | undefined;
+  alt?: string | undefined;
+  className?: string | undefined;
+}) {
   return (
     <div className={cn("overflow-hidden rounded-md border bg-placeholder", className)}>
       <img

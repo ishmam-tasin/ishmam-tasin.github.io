@@ -25,7 +25,11 @@ export function SiteFooter() {
           <ul className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
             {items.map((item, i) => (
               <li key={item.label} className="flex items-center gap-3">
-                {i > 0 && <span aria-hidden="true" className="text-border">|</span>}
+                {i > 0 && (
+                  <span aria-hidden="true" className="text-border">
+                    |
+                  </span>
+                )}
                 <a
                   href={item.href}
                   target="_blank"
