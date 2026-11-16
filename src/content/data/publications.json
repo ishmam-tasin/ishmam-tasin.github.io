@@ -1,25 +1,23 @@
 [
   {
-    "id": "authvr-trustcom-2025",
-    "title": "AuthVR: Securing Authentication Against Shoulder Surfing and Keystroke Inference Attacks using Virtual Reality",
+    "id": "username-dapps-2026",
+    "title": "Why Can't I Just Use a Username? Understanding Why Users Struggle with Messaging DApps",
     "authors": [
-      "Md. Yeasin Ali",
-      "Touhid Rahaman Udoy",
-      "Md Ishmam Tasin",
-      "Masum Alam Nahid",
-      "Fairuz Rahaman Chowdhury",
-      "Farida Chowdhury",
-      "Md Sadek Ferdous"
+      "Tithi Saha*",
+      "Md Ishmam Tasin*",
+      "Ahad Mahjabin Jannat",
+      "Md Masum",
+      "Farida Chowdhury"
     ],
-    "year": 2025,
-    "venue": "24th IEEE International Conference on Trust, Security and Privacy in Computing and Communications (TrustCom 2025)",
-    "venueShort": "IEEE TrustCom 2025",
+    "authorNote": "* denotes equal contribution",
+    "year": 2026,
+    "venue": "The 8th IEEE International Conference on Decentralized Applications and Infrastructures (IEEE DAPPS 2026)",
+    "venueShort": "IEEE DAPPS 2026",
     "type": "Conference",
-    "status": "Published",
-    "area": "Usable Security · XR Authentication",
+    "status": "Accepted",
+    "area": "Usable Security · Decentralized Systems",
     "links": {
-      "paper": "http://computer.org/csdl/proceedings-article/trustcom/2025/653200c087/2dMlk1X5Zle",
-      "pdf": "https://drive.google.com/file/d/1bg-05030gmat6YQFsWzCSeG1u-xkjO8U/view?usp=sharing"
+      "pdf": "https://drive.google.com/file/d/15LYDiIvEJwSuuTuLrIJoE-o_iX2hM32b/view?usp=sharing"
     },
     "selected": true
   },
@@ -45,24 +43,26 @@
     "selected": true
   },
   {
-    "id": "username-dapps-2026",
-    "title": "Why Can't I Just Use a Username? Understanding Why Users Struggle with Messaging DApps",
+    "id": "authvr-trustcom-2025",
+    "title": "AuthVR: Securing Authentication Against Shoulder Surfing and Keystroke Inference Attacks using Virtual Reality",
     "authors": [
-      "Tithi Saha*",
-      "Md Ishmam Tasin*",
-      "Ahad Mahjabin Jannat",
-      "Md Masum",
-      "Farida Chowdhury"
+      "Md. Yeasin Ali",
+      "Touhid Rahaman Udoy",
+      "Md Ishmam Tasin",
+      "Masum Alam Nahid",
+      "Fairuz Rahaman Chowdhury",
+      "Farida Chowdhury",
+      "Md Sadek Ferdous"
     ],
-    "authorNote": "* denotes equal contribution",
-    "year": 2026,
-    "venue": "The 8th IEEE International Conference on Decentralized Applications and Infrastructures (IEEE DAPPS 2026)",
-    "venueShort": "IEEE DAPPS 2026",
+    "year": 2025,
+    "venue": "24th IEEE International Conference on Trust, Security and Privacy in Computing and Communications (TrustCom 2025)",
+    "venueShort": "IEEE TrustCom 2025",
     "type": "Conference",
-    "status": "Accepted",
-    "area": "Usable Security · Decentralized Systems",
+    "status": "Published",
+    "area": "Usable Security · XR Authentication",
     "links": {
-      "pdf": "https://drive.google.com/file/d/15LYDiIvEJwSuuTuLrIJoE-o_iX2hM32b/view?usp=sharing"
+      "paper": "http://computer.org/csdl/proceedings-article/trustcom/2025/653200c087/2dMlk1X5Zle",
+      "pdf": "https://drive.google.com/file/d/1bg-05030gmat6YQFsWzCSeG1u-xkjO8U/view?usp=sharing"
     },
     "selected": true
   },
