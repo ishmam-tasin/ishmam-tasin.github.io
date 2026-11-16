@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Site Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Source Sans 3', system-ui, sans-serif; background: #F9FAFB; }
+    .inp { width: 100%; padding: .5rem .75rem; border: 1px solid #D1D5DB; border-radius: .375rem; background: #fff; font-size: .95rem; }
+    .inp:focus { outline: none; border-color: #2563EB; box-shadow: 0 0 0 3px rgba(37,99,235,.2); }
+    .btn { display: inline-flex; align-items: center; gap: .35rem; padding: .45rem .9rem; border-radius: .375rem; font-size: .875rem; font-weight: 600; transition: background .15s; white-space: nowrap; }
+    .btn-dark { background: #111827; color: #fff; } .btn-dark:hover { background: #1F2937; }
+    .btn-light { background: #fff; border: 1px solid #D1D5DB; color: #374151; } .btn-light:hover { background: #F3F4F6; }
+    .btn-green { background: #047857; color: #fff; } .btn-green:hover { background: #065F46; }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+    .icon-btn { padding: .3rem .5rem; border-radius: .3rem; font-size: .8rem; color: #6B7280; }
+    .icon-btn:hover { background: #F3F4F6; color: #111827; }
+    .icon-btn.danger:hover { background: #FEF2F2; color: #B91C1C; }
+    dialog::backdrop { background: rgba(17,24,39,.5); }
+    .nav-item.active { background: #1F2937; color: #fff; }
+  </style>
+</head>
+<body class="antialiased text-gray-800">
+  <div class="flex min-h-screen flex-col md:flex-row">
+    <!-- Sidebar -->
+    <aside class="bg-gray-900 text-white md:w-64 md:shrink-0 md:h-screen md:sticky md:top-0 flex flex-col">
+      <div class="p-4 md:p-6 border-b border-gray-800">
+        <h1 class="text-lg font-semibold">Site Admin</h1>
+        <p class="text-xs text-gray-400 mt-1">Edit your website content</p>
+      </div>
+      <nav id="nav" class="flex md:flex-col gap-1 p-3 md:p-4 overflow-x-auto md:overflow-y-auto md:flex-1 text-sm"></nav>
+      <div class="hidden md:block p-4 border-t border-gray-800">
+        <a href="/" class="text-sm text-gray-400 hover:text-white">← Back to live site</a>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="flex-1 min-w-0">
+      <div id="bar" class="sticky top-0 z-10"></div>
+      <div id="view" class="max-w-4xl mx-auto p-4 md:p-8"></div>
+    </main>
+  </div>
+
+  <!-- Editor dialog -->
+  <dialog id="editor" class="w-full max-w-2xl rounded-lg p-0 shadow-xl">
+    <form id="editorForm" class="flex flex-col max-h-[90vh]">
+      <div class="px-6 py-4 border-b flex items-center justify-between">
+        <h3 id="editorTitle" class="text-lg font-semibold"></h3>
+        <button type="button" class="icon-btn" data-close>✕</button>
+      </div>
+      <div id="editorFields" class="px-6 py-5 space-y-4 overflow-y-auto"></div>
+      <div class="px-6 py-4 border-t flex justify-end gap-2 bg-gray-50">
+        <button type="button" class="btn btn-light" data-close>Cancel</button>
+        <button type="submit" class="btn btn-dark">Done</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="fixed bottom-4 right-4 z-50 hidden max-w-sm rounded-md px-4 py-3 text-sm shadow-lg"></div>
+
+<script>
+"use strict";
+
+/* ------------------------------------------------------------------ */
+/*  Content definitions                                               */
+/* ------------------------------------------------------------------ */
+
+const DATA = "src/content/data/";
+const ROUTES = [
+  { v: "", l: "— none —" }, { v: "/", l: "Home" }, { v: "/research", l: "Research" },
+  { v: "/publications", l: "Publications" }, { v: "/ongoing", l: "Ongoing work" },
+  { v: "/awards", l: "Awards" }, { v: "/service", l: "Service" }, { v: "/cv", l: "CV" },
+];
+const IMAGE_HELP = "Optional. A full image URL, or a file you added to the site's public/ folder (e.g. /images/fig.png). Empty = placeholder.";
+
+const COLLECTIONS = [
+  {
+    id: "news", label: "Recent News", file: DATA + "news.json", addToTop: true,
+    hint: "Shown on the homepage, newest first. New items are added at the top.",
+    fields: [
+      { key: "date", label: "Date", required: true, placeholder: "Nov 16, 2026" },
+      { key: "text", label: "News text", type: "textarea", required: true },
+      { key: "to", label: "“Read more” link to a page on this site", type: "select", options: ROUTES },
+      { key: "href", label: "…or an external link", type: "url", placeholder: "https://…" },
+    ],
+    summary: (it) => ({ badge: it.date, title: it.text }),
+  },
+  {
+    id: "publications", label: "Publications", file: DATA + "publications.json", addToTop: true, idFrom: "title",
+    hint: "Accepted, to-appear and published papers (Publications page). ★ = shown on the homepage.",
+    fields: [
+      { key: "title", label: "Title", required: true },
+      { key: "authors", label: "Authors", type: "lines", required: true, help: "One author per line, in paper order. Add * after a name for equal contribution." },
+      { key: "authorNote", label: "Author note", placeholder: "* denotes equal contribution" },
+      { key: "status", label: "Status", type: "select", required: true, options: ["Accepted", "To appear", "Published"] },
+      { key: "type", label: "Type", type: "select", required: true, options: ["Conference", "Journal"] },
+      { key: "year", label: "Year", type: "number", required: true },
+      { key: "venue", label: "Venue (full name)", required: true, placeholder: "International Conference on … (CHIRA 2026)" },
+      { key: "venueShort", label: "Venue (short)", required: true, placeholder: "CHIRA 2026" },
+      { key: "area", label: "Research area", required: true, placeholder: "Usable Security · Decentralized Systems" },
+      { key: "links.pdf", label: "PDF link", type: "url" },
+      { key: "links.paper", label: "Paper / proceedings link", type: "url" },
+      { key: "links.doi", label: "DOI / publisher link", type: "url" },
+      { key: "links.scholar", label: "Google Scholar link", type: "url" },
+      { key: "links.project", label: "Project link", type: "url" },
+      { key: "selected", label: "Show on homepage (Selected Publications)", type: "checkbox" },
+    ],
+    summary: (it) => ({ badge: it.status, title: it.title, sub: [it.venueShort, it.year].filter(Boolean).join(" · "), star: it.selected }),
+  },
+  {
+    id: "ongoing", label: "Under Review & Ongoing", file: DATA + "ongoing.json", addToTop: true, idFrom: "title",
+    hint: "Items with stage “Under review” are listed on the Research page and the Ongoing page. When a paper gets accepted, click “Accepted → Publication”.",
+    fields: [
+      { key: "title", label: "Title", required: true },
+      { key: "authors", label: "Authors", type: "lines", required: true, help: "One author per line. Use “Anonymous” for anonymised submissions." },
+      { key: "authorNote", label: "Author note", placeholder: "* denotes equal contribution" },
+      { key: "stage", label: "Listed under", type: "select", required: true, options: [{ v: "review", l: "Under review" }, { v: "preparation", l: "In preparation" }] },
+      { key: "status", label: "Status text", required: true, suggest: ["Under review", "Under review (2nd round)", "Major revision", "Minor revision", "In conference", "Ongoing work", "To be submitted", "Planned for submission"] },
+      { key: "venue", label: "Venue", required: true, placeholder: "ACM CHI Conference on Human Factors in Computing Systems (CHI 2027)" },
+      { key: "venueUrl", label: "Venue website", type: "url" },
+      { key: "area", label: "Research area", required: true },
+      { key: "description", label: "Short description", type: "textarea" },
+      { key: "pdf", label: "PDF link", type: "url" },
+      { key: "image", label: "Image", help: IMAGE_HELP },
+      { key: "imageAlt", label: "Image description (alt text)" },
+    ],
+    defaults: () => ({ stage: "review", status: "Under review" }),
+    summary: (it) => ({ badge: it.status, title: it.title, sub: it.venue }),
+    actions: [{ act: "promote", label: "Accepted → Publication", cls: "text-emerald-700" }],
+  },
+  {
+    id: "projects", label: "Research Projects", file: DATA + "projects.json", idFrom: "title",
+    hint: "“Selected Research” on the Research page. ★ = also flagged for the homepage.",
+    fields: [
+      { key: "title", label: "Title", required: true },
+      { key: "area", label: "Research area", required: true },
+      { key: "description", label: "Description", type: "textarea", required: true },
+      { key: "role", label: "Your role" },
+      { key: "methodology", label: "Methods" },
+      { key: "outcome", label: "Outcome", required: true, placeholder: "Accepted at CHIRA 2026." },
+      { key: "outcomeStatus", label: "Status tag", required: true, suggest: ["Published", "Accepted", "To appear", "Under review", "Ongoing"] },
+      { key: "href", label: "“Read more” link", required: true, suggest: ROUTES.filter((r) => r.v).map((r) => r.v), help: "A page on this site (e.g. /publications) or a full URL." },
+      { key: "image", label: "Image", help: IMAGE_HELP },
+      { key: "imageAlt", label: "Image description (alt text)" },
+      { key: "selected", label: "Feature on homepage", type: "checkbox" },
+    ],
+    defaults: () => ({ href: "/publications" }),
+    summary: (it) => ({ badge: it.outcomeStatus, title: it.title, sub: it.area, star: it.selected }),
+  },
+  {
+    id: "collaborations", label: "Collaborations", file: DATA + "collaborations.json",
+    hint: "“Research Collaborations” cards on the homepage.",
+    fields: [
+      { key: "org", label: "Institution", required: true },
+      { key: "description", label: "Description", type: "textarea", rows: 5, required: true, help: "To link a name write [Dr. Jane Doe](https://example.com)." },
+    ],
+    summary: (it) => ({ title: it.org, sub: it.description.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1") }),
+  },
+  {
+    group: "Research page text",
+    id: "overview", label: "Overview", file: DATA + "research.json", path: "overview", scalar: true,
+    hint: "Paragraphs under “Research Overview”.",
+    fields: [{ key: "value", label: "Paragraph", type: "textarea", rows: 7, required: true }],
+    summary: (s) => ({ title: s }),
+  },
+  {
+    id: "themes", label: "Themes", file: DATA + "research.json", path: "themes",
+    hint: "Research themes (Research page and homepage).",
+    fields: [
+      { key: "title", label: "Theme", required: true },
+      { key: "text", label: "Description", type: "textarea", required: true },
+    ],
+    summary: (it) => ({ title: it.title, sub: it.text }),
+  },
+  {
+    id: "questions", label: "Research questions", file: DATA + "research.json", path: "questions",
+    hint: "“Questions I Explore” (homepage) and “Current research directions” (Research page).",
+    fields: [
+      { key: "n", label: "Number", required: true, placeholder: "06" },
+      { key: "title", label: "Short title", required: true },
+      { key: "question", label: "Question", type: "textarea", required: true },
+      { key: "note", label: "Note", type: "textarea", required: true },
+    ],
+    summary: (it) => ({ badge: it.n, title: it.title, sub: it.question }),
+  },
+  {
+    id: "contexts", label: "Contexts", file: DATA + "research.json", path: "contexts", scalar: true,
+    hint: "Tags under “Research Contexts”.",
+    fields: [{ key: "value", label: "Context", required: true }],
+    summary: (s) => ({ title: s }),
+  },
+];
+const byId = Object.fromEntries(COLLECTIONS.map((c) => [c.id, c]));
+
+/* ------------------------------------------------------------------ */
+/*  State                                                             */
+/* ------------------------------------------------------------------ */
+
+const CFG_KEY = "site-admin-config";
+const S = {
+  cfg: { owner: "ishmam-tasin", repo: "ishmam-tasin.github.io", branch: "main", token: "" },
+  files: {},        // path -> { sha, data, original }
+  loadError: null,
+  log: [],          // human-readable list of pending changes
+  view: "news",
+  deploy: null,     // { state, url }
+};
+try { Object.assign(S.cfg, JSON.parse(localStorage.getItem(CFG_KEY) || "{}")); } catch {}
+function saveCfg() { try { localStorage.setItem(CFG_KEY, JSON.stringify(S.cfg)); } catch {} }
+
+/* ------------------------------------------------------------------ */
+/*  Helpers                                                           */
+/* ------------------------------------------------------------------ */
+
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+const clone = (o) => JSON.parse(JSON.stringify(o));
+const short = (s, n = 60) => { s = String(s ?? ""); return s.length > n ? s.slice(0, n - 1) + "…" : s; };
+
+function getPath(o, k) { return k.split(".").reduce((a, p) => (a == null ? undefined : a[p]), o); }
+function setPath(o, k, v) {
+  const ps = k.split(".");
+  let a = o;
+  for (let i = 0; i < ps.length - 1; i++) { if (typeof a[ps[i]] !== "object" || !a[ps[i]]) a[ps[i]] = {}; a = a[ps[i]]; }
+  const last = ps[ps.length - 1];
+  if (v === undefined) delete a[last]; else a[last] = v;
+  if (ps.length === 2 && Object.keys(o[ps[0]]).length === 0) delete o[ps[0]];
+}
+function slugify(s) { return String(s).toLowerCase().normalize("NFKD").replace(/[^\w\s-]/g, "").trim().replace(/[\s_]+/g, "-").replace(/-+/g, "-").slice(0, 50) || "item"; }
+
+function b64encode(str) {
+  const bytes = new TextEncoder().encode(str);
+  let bin = "";
+  for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  return btoa(bin);
+}
+function b64decode(b64) {
+  const bin = atob(b64.replace(/\s/g, ""));
+  return new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0)));
+}
+
+let toastTimer;
+function toast(msg, kind = "ok") {
+  const t = $("#toast");
+  t.textContent = msg;
+  t.className = "fixed bottom-4 right-4 z-50 max-w-sm rounded-md px-4 py-3 text-sm shadow-lg " +
+    (kind === "error" ? "bg-red-700 text-white" : "bg-gray-900 text-white");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.add("hidden"), kind === "error" ? 9000 : 4000);
+}
+
+/* ------------------------------------------------------------------ */
+/*  GitHub API                                                        */
+/* ------------------------------------------------------------------ */
+
+async function gh(path, opts = {}, auth = true) {
+  const { owner, repo, token } = S.cfg;
+  const headers = { Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" };
+  if (auth && token) headers.Authorization = `Bearer ${token}`;
+  if (opts.body) headers["Content-Type"] = "application/json";
+  const r = await fetch(`https://api.github.com/repos/${owner}/${repo}${path}`, { ...opts, headers, cache: "no-store" });
+  if (!r.ok) {
+    let msg = r.statusText;
+    try { msg = (await r.json()).message || msg; } catch {}
+    const e = new Error(`GitHub said: ${msg} (${r.status})`);
+    e.status = r.status;
+    throw e;
+  }
+  return r.json();
+}
+
+async function loadFile(p) {
+  const j = await gh(`/contents/${p}?ref=${encodeURIComponent(S.cfg.branch)}`);
+  const data = JSON.parse(b64decode(j.content));
+  S.files[p] = { sha: j.sha, data, original: JSON.stringify(data) };
+}
+
+async function loadAll() {
+  S.loadError = null;
+  S.files = {};
+  S.log = [];
+  render();
+  const paths = [...new Set(COLLECTIONS.map((c) => c.file))];
+  try {
+    await Promise.all(paths.map(loadFile));
+  } catch (e) {
+    S.loadError = e.message;
+  }
+  render();
+}
+
+const isDirty = (p) => S.files[p] && JSON.stringify(S.files[p].data) !== S.files[p].original;
+const dirtyFiles = () => Object.keys(S.files).filter(isDirty);
+
+async function publish() {
+  if (!S.cfg.token) { toast("Add your GitHub token in Settings first.", "error"); S.view = "settings"; render(); return; }
+  const files = dirtyFiles();
+  if (!files.length) return;
+  const names = files.map((p) => p.split("/").pop().replace(".json", ""));
+  const message = `Admin: update ${names.join(", ")}\n\n${S.log.map((l) => "- " + l).join("\n")}`;
+  setBusy(true);
+  try {
+    for (const p of files) {
+      const f = S.files[p];
+      const content = JSON.stringify(f.data, null, 2) + "\n";
+      const j = await gh(`/contents/${p}`, {
+        method: "PUT",
+        body: JSON.stringify({ message, content: b64encode(content), sha: f.sha, branch: S.cfg.branch }),
+      });
+      f.sha = j.content.sha;
+      f.original = JSON.stringify(f.data);
+    }
+    S.log = [];
+    toast("Published! The live site will update in about 2 minutes.");
+    watchDeploy(Date.now());
+  } catch (e) {
+    if (e.status === 409 || e.status === 422) {
+      toast("This content was changed elsewhere (e.g. in Lovable) since you opened the admin. Click “Reload from GitHub” and redo your edit.", "error");
+    } else if (e.status === 401 || e.status === 403 || e.status === 404) {
+      toast(e.message + " — check the token in Settings (it needs Contents: Read and write on this repository).", "error");
+    } else {
+      toast(e.message, "error");
+    }
+  } finally {
+    setBusy(false);
+  }
+}
+
+let deployTimer;
+async function watchDeploy(since) {
+  clearTimeout(deployTimer);
+  const { owner, repo } = S.cfg;
+  S.deploy = { state: "Waiting for the build to start…", url: `https://github.com/${owner}/${repo}/actions` };
+  renderBar();
+  const poll = async () => {
+    if (Date.now() - since > 10 * 60 * 1000) { S.deploy = null; renderBar(); return; }
+    try {
+      const j = await gh(`/actions/runs?branch=${encodeURIComponent(S.cfg.branch)}&per_page=1`, {}, false);
+      const run = j.workflow_runs && j.workflow_runs[0];
+      if (run && new Date(run.created_at).getTime() > since - 60000) {
+        S.deploy.url = run.html_url;
+        if (run.status === "completed") {
+          S.deploy.state = run.conclusion === "success" ? "done" : "failed";
+          renderBar();
+          return;
+        }
+        S.deploy.state = "Building and deploying the site…";
+        renderBar();
+      }
+    } catch { /* ignore: status display only */ }
+    deployTimer = setTimeout(poll, 10000);
+  };
+  deployTimer = setTimeout(poll, 8000);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Rendering                                                         */
+/* ------------------------------------------------------------------ */
+
+function getList(col) {
+  const f = S.files[col.file];
+  if (!f) return null;
+  return col.path ? f.data[col.path] : f.data;
+}
+
+function render() { renderNav(); renderBar(); renderView(); }
+
+function renderNav() {
+  let html = "";
+  for (const c of COLLECTIONS) {
+    if (c.group) html += `<p class="hidden md:block px-4 pt-4 pb-1 text-[11px] uppercase tracking-wider text-gray-500">${esc(c.group)}</p>`;
+    html += navItem(c.id, c.label, isDirty(c.file) && JSON.stringify(getList(c)) !== JSON.stringify(origList(c)));
+  }
+  html += `<div class="md:mt-auto md:pt-4"></div>` + navItem("settings", "⚙ Settings", false);
+  $("#nav").innerHTML = html;
+}
+function origList(col) {
+  const f = S.files[col.file];
+  if (!f) return null;
+  const o = JSON.parse(f.original);
+  return col.path ? o[col.path] : o;
+}
+function navItem(id, label, dirty) {
+  return `<button data-nav="${id}" class="nav-item shrink-0 text-left flex items-center justify-between gap-2 px-4 py-2 rounded-md text-gray-300 hover:bg-gray-800 ${S.view === id ? "active" : ""}">
+    <span>${esc(label)}</span>${dirty ? `<span class="size-2 rounded-full bg-amber-400" title="Unpublished changes"></span>` : ""}</button>`;
+}
+
+function setBusy(b) { S.busy = b; renderBar(); }
+
+function renderBar() {
+  const n = dirtyFiles().length;
+  let html = "";
+  if (n) {
+    html += `<div class="bg-amber-50 border-b border-amber-200 px-4 md:px-8 py-3 flex flex-wrap items-center gap-3 justify-between">
+      <p class="text-sm text-amber-900"><strong>Unpublished changes</strong> — ${S.log.length} edit${S.log.length === 1 ? "" : "s"}. They are not on your site until you publish.</p>
+      <div class="flex gap-2">
+        <button class="btn btn-light" data-act="discard" ${S.busy ? "disabled" : ""}>Discard</button>
+        <button class="btn btn-green" data-act="publish" ${S.busy ? "disabled" : ""}>${S.busy ? "Publishing…" : "Publish to website"}</button>
+      </div></div>`;
+  }
+  if (S.deploy) {
+    const d = S.deploy;
+    const msg = d.state === "done" ? "✅ Your site is updated. Refresh it to see the changes."
+      : d.state === "failed" ? "❌ The site build failed — open the log to see why."
+      : "⏳ " + d.state;
+    html += `<div class="bg-blue-50 border-b border-blue-200 px-4 md:px-8 py-2 text-sm text-blue-900 flex flex-wrap gap-3 justify-between">
+      <span>${esc(msg)}</span>
+      <span class="flex gap-3"><a class="underline" href="${esc(d.url)}" target="_blank" rel="noopener">Build log</a>
+      <button class="underline" data-act="hide-deploy">Hide</button></span></div>`;
+  }
+  $("#bar").innerHTML = html;
+}
+
+function renderView() {
+  const v = $("#view");
+  if (S.view === "settings") { v.innerHTML = settingsHTML(); return; }
+  const col = byId[S.view];
+  const header = `<div class="flex flex-wrap items-start justify-between gap-4 mb-6">
+      <div><h2 class="text-2xl font-semibold text-gray-900">${esc(col.label)}</h2>
+      ${col.hint ? `<p class="text-sm text-gray-500 mt-1 max-w-2xl">${esc(col.hint)}</p>` : ""}</div>
+      <button class="btn btn-dark" data-act="add" ${getList(col) ? "" : "disabled"}>+ Add new</button></div>`;
+
+  if (S.loadError) {
+    v.innerHTML = header + `<div class="rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+      <p class="font-semibold">Could not load your content.</p><p class="mt-1">${esc(S.loadError)}</p>
+      <p class="mt-2">Check the repository details in <button class="underline" data-nav="settings">Settings</button>, then <button class="underline" data-act="reload">try again</button>.</p></div>`;
+    return;
+  }
+  const list = getList(col);
+  if (!list) { v.innerHTML = header + `<p class="text-sm text-gray-500">Loading content from GitHub…</p>`; return; }
+
+  const items = list.map((it, i) => {
+    const s = col.summary(it);
+    const extra = (col.actions || []).map((a) => `<button class="icon-btn font-semibold ${a.cls || ""}" data-act="${a.act}" data-i="${i}">${esc(a.label)}</button>`).join("");
+    return `<li class="p-4 md:px-6 flex flex-col sm:flex-row sm:items-start gap-3 justify-between">
+      <div class="min-w-0">
+        ${s.badge ? `<span class="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mb-1.5">${esc(s.badge)}</span>` : ""}
+        <p class="text-sm font-medium text-gray-900">${s.star ? '<span class="text-amber-500" title="Shown on homepage">★ </span>' : ""}${esc(s.title)}</p>
+        ${s.sub ? `<p class="text-xs text-gray-500 mt-0.5">${esc(short(s.sub, 140))}</p>` : ""}
+      </div>
+      <div class="flex flex-wrap items-center gap-0.5 shrink-0">
+        ${extra}
+        <button class="icon-btn" data-act="edit" data-i="${i}">Edit</button>
+        <button class="icon-btn" data-act="up" data-i="${i}" title="Move up" ${i === 0 ? "disabled" : ""}>↑</button>
+        <button class="icon-btn" data-act="down" data-i="${i}" title="Move down" ${i === list.length - 1 ? "disabled" : ""}>↓</button>
+        <button class="icon-btn danger" data-act="delete" data-i="${i}">Delete</button>
+      </div></li>`;
+  }).join("");
+
+  v.innerHTML = header + `<div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    ${list.length ? `<ul class="divide-y divide-gray-200">${items}</ul>` : `<p class="p-6 text-sm text-gray-500">Nothing here yet.</p>`}
+  </div>
+  <p class="mt-6 text-xs text-gray-400">Order here is the order on the website. <button class="underline" data-act="reload">Reload from GitHub</button></p>`;
+}
+
+function settingsHTML() {
+  const c = S.cfg;
+  return `<h2 class="text-2xl font-semibold text-gray-900 mb-6">Settings</h2>
+  <form id="settingsForm" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-4">
+    <div class="grid sm:grid-cols-3 gap-4">
+      <label class="block"><span class="block text-sm font-medium mb-1">GitHub username</span><input class="inp" name="owner" value="${esc(c.owner)}" required></label>
+      <label class="block"><span class="block text-sm font-medium mb-1">Repository</span><input class="inp" name="repo" value="${esc(c.repo)}" required></label>
+      <label class="block"><span class="block text-sm font-medium mb-1">Branch</span><input class="inp" name="branch" value="${esc(c.branch)}" required></label>
+    </div>
+    <label class="block"><span class="block text-sm font-medium mb-1">GitHub access token</span>
+      <input class="inp font-mono" type="password" name="token" value="${esc(c.token)}" placeholder="github_pat_…" autocomplete="off">
+      <span class="block text-xs text-gray-500 mt-1">Saved only in this browser. Anyone can open this page, but nobody can change your site without this token.</span></label>
+    <div class="flex flex-wrap gap-2 justify-end">
+      <button type="button" class="btn btn-light" data-act="forget">Forget token</button>
+      <button type="button" class="btn btn-light" data-act="test">Test connection</button>
+      <button type="submit" class="btn btn-dark">Save settings</button>
+    </div>
+  </form>
+  <div class="mt-6 bg-white rounded-lg border border-gray-200 p-6 text-sm leading-relaxed">
+    <h3 class="font-semibold mb-2">How to get a token (one time)</h3>
+    <ol class="list-decimal pl-5 space-y-1 text-gray-700">
+      <li>Open <a class="text-blue-700 underline" target="_blank" rel="noopener" href="https://github.com/settings/personal-access-tokens/new">GitHub → New fine-grained token</a>.</li>
+      <li>Name it “Site admin” and pick an expiration.</li>
+      <li><b>Repository access</b>: “Only select repositories” → <code>${esc(c.repo)}</code>.</li>
+      <li><b>Permissions</b> → Repository permissions → <b>Contents: Read and write</b>.</li>
+      <li>Generate, copy the token, paste it above and save.</li>
+    </ol>
+    <h3 class="font-semibold mt-5 mb-2">How publishing works</h3>
+    <p class="text-gray-700">Edits stay in this browser until you click <b>Publish to website</b>. Publishing saves the content files in your GitHub repository; GitHub then rebuilds and redeploys the site automatically (about 2 minutes). The changes also appear in Lovable.</p>
+  </div>`;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Editor                                                            */
+/* ------------------------------------------------------------------ */
+
+let editing = null; // { col, index, item, onSave }
+
+function fieldHTML(f, val) {
+  const id = "f_" + f.key.replace(/\W/g, "_");
+  const req = f.required ? "required" : "";
+  const ph = f.placeholder ? `placeholder="${esc(f.placeholder)}"` : "";
+  const help = f.help ? `<span class="block text-xs text-gray-500 mt-1">${esc(f.help)}</span>` : "";
+  const label = `<span class="block text-sm font-medium text-gray-700 mb-1">${esc(f.label)}${f.required ? ' <span class="text-red-500">*</span>' : ""}</span>`;
+  const type = f.type || "text";
+
+  if (type === "checkbox") {
+    return `<label class="flex items-center gap-2 text-sm font-medium text-gray-700"><input type="checkbox" name="${id}" class="size-4" ${val ? "checked" : ""}> ${esc(f.label)}</label>`;
+  }
+  let input;
+  if (type === "textarea" || type === "lines") {
+    const v = type === "lines" ? (val || []).join("\n") : (val ?? "");
+    const rows = f.rows || (type === "lines" ? Math.max(4, (val || []).length + 1) : 3);
+    input = `<textarea class="inp" name="${id}" rows="${rows}" ${req} ${ph}>${esc(v)}</textarea>`;
+  } else if (type === "select") {
+    const opts = f.options.map((o) => (typeof o === "string" ? { v: o, l: o } : o));
+    input = `<select class="inp" name="${id}" ${req}>${opts.map((o) => `<option value="${esc(o.v)}" ${String(val ?? "") === o.v ? "selected" : ""}>${esc(o.l)}</option>`).join("")}</select>`;
+  } else {
+    const list = f.suggest ? `list="${id}_list"` : "";
+    input = `<input class="inp" name="${id}" type="${type === "number" ? "number" : type === "url" ? "url" : "text"}" value="${esc(val ?? "")}" ${req} ${ph} ${list}>`;
+    if (f.suggest) input += `<datalist id="${id}_list">${f.suggest.map((s) => `<option value="${esc(s)}">`).join("")}</datalist>`;
+  }
+  return `<label class="block">${label}${input}${help}</label>`;
+}
+
+function openEditor(col, index, preset, onSave) {
+  const existing = index != null ? getList(col)[index] : null;
+  let item = existing != null ? clone(existing) : preset ? clone(preset) : col.defaults ? col.defaults() : {};
+  if (col.scalar) item = { value: typeof item === "string" ? item : "" };
+  editing = { col, index, item, onSave };
+  $("#editorTitle").textContent = (index != null ? "Edit — " : "Add — ") + col.label;
+  $("#editorFields").innerHTML = col.fields.map((f) => fieldHTML(f, getPath(item, f.key))).join("");
+  $("#editor").showModal();
+  const first = $("#editorFields input, #editorFields textarea");
+  if (first) first.focus();
+}
+
+function readForm() {
+  const { col, item } = editing;
+  const fd = new FormData($("#editorForm"));
+  const out = clone(item);
+  for (const f of col.fields) {
+    const name = "f_" + f.key.replace(/\W/g, "_");
+    const raw = fd.get(name);
+    let v;
+    switch (f.type) {
+      case "checkbox": v = raw ? true : undefined; break;
+      case "number": v = raw === "" || raw == null ? undefined : Number(raw); break;
+      case "lines": { const a = String(raw || "").split("\n").map((s) => s.trim()).filter(Boolean); v = a.length ? a : undefined; break; }
+      default: v = String(raw ?? "").trim() || undefined;
+    }
+    setPath(out, f.key, v);
+  }
+  if (col.scalar) return out.value;
+  if (col.idFrom && !out.id) {
+    const ids = new Set(getList(col).map((x) => x.id));
+    let id = slugify(out[col.idFrom]), n = 2;
+    const base = id;
+    while (ids.has(id)) id = `${base}-${n++}`;
+    out.id = id;
+  }
+  return out;
+}
+
+$("#editorForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const { col, index, onSave } = editing;
+  const value = readForm();
+  const list = getList(col);
+  const label = short(col.scalar ? value : value.title || value.org || value.text || value.date);
+  if (index != null) {
+    list[index] = value;
+    S.log.push(`Edit ${col.label.toLowerCase()}: ${label}`);
+  } else {
+    col.addToTop ? list.unshift(value) : list.push(value);
+    S.log.push(`Add ${col.label.toLowerCase()}: ${label}`);
+  }
+  $("#editor").close();
+  editing = null;
+  if (onSave) onSave(value);
+  render();
+});
+document.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => $("#editor").close()));
+
+/* Ongoing paper accepted → new publication (+ optional news item). */
+function promote(i) {
+  const ongoingCol = byId.ongoing;
+  const src = getList(ongoingCol)[i];
+  const venue = String(src.venue || "").replace(/^to be submitted to\s*/i, "");
+  const m = venue.match(/\(([^()]*\d{4})\)\s*$/);
+  const preset = {
+    title: src.title,
+    authors: src.authors,
+    authorNote: src.authorNote,
+    status: "Accepted",
+    type: "Conference",
+    year: new Date().getFullYear(),
+    venue,
+    venueShort: m ? m[1] : "",
+    area: src.area,
+    links: src.pdf ? { pdf: src.pdf } : undefined,
+  };
+  S.view = "publications";
+  render();
+  openEditor(byId.publications, null, preset, (pub) => {
+    const idx = getList(ongoingCol).indexOf(src);
+    if (idx >= 0) getList(ongoingCol).splice(idx, 1);
+    S.log.push(`Remove from under review: ${short(src.title)}`);
+    if (confirm("Also add a news item announcing this acceptance?")) {
+      const d = new Date();
+      const date = d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+      getList(byId.news).unshift({ date, text: `“${pub.title}” accepted at ${pub.venueShort || pub.venue}.`, to: "/publications" });
+      S.log.push(`Add recent news: ${short(pub.title)}`);
+      toast("Added to Publications and Recent News. Edit the news text if you like, then Publish.");
+    } else {
+      toast("Moved to Publications. Click “Publish to website” when ready.");
+    }
+  });
+}
+
+/* ------------------------------------------------------------------ */
+/*  Events                                                            */
+/* ------------------------------------------------------------------ */
+
+document.addEventListener("click", (e) => {
+  const nav = e.target.closest("[data-nav]");
+  if (nav) { S.view = nav.dataset.nav; render(); window.scrollTo(0, 0); return; }
+
+  const b = e.target.closest("[data-act]");
+  if (!b || b.disabled) return;
+  const act = b.dataset.act;
+  const i = b.dataset.i != null ? Number(b.dataset.i) : null;
+  const col = byId[S.view];
+  const list = col ? getList(col) : null;
+  const label = (it) => short(col.scalar ? it : it.title || it.org || it.text || it.date);
+
+  switch (act) {
+    case "add": openEditor(col, null); break;
+    case "edit": openEditor(col, i); break;
+    case "up": case "down": {
+      const j = act === "up" ? i - 1 : i + 1;
+      [list[i], list[j]] = [list[j], list[i]];
+      S.log.push(`Reorder ${col.label.toLowerCase()}`);
+      render();
+      break;
+    }
+    case "delete":
+      if (confirm(`Delete this item?\n\n${label(list[i])}`)) {
+        S.log.push(`Delete ${col.label.toLowerCase()}: ${label(list[i])}`);
+        list.splice(i, 1);
+        render();
+      }
+      break;
+    case "promote": promote(i); break;
+    case "publish": publish(); break;
+    case "discard":
+      if (confirm("Discard all unpublished changes?")) {
+        for (const p of dirtyFiles()) S.files[p].data = JSON.parse(S.files[p].original);
+        S.log = [];
+        render();
+      }
+      break;
+    case "reload":
+      if (!dirtyFiles().length || confirm("Reloading discards your unpublished changes. Continue?")) loadAll();
+      break;
+    case "hide-deploy": S.deploy = null; clearTimeout(deployTimer); renderBar(); break;
+    case "forget": S.cfg.token = ""; saveCfg(); render(); toast("Token removed from this browser."); break;
+    case "test": testConnection(); break;
+  }
+});
+
+document.addEventListener("submit", (e) => {
+  if (e.target.id !== "settingsForm") return;
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const repoChanged = ["owner", "repo", "branch"].some((k) => String(fd.get(k)).trim() !== S.cfg[k]);
+  for (const k of ["owner", "repo", "branch", "token"]) S.cfg[k] = String(fd.get(k) || "").trim();
+  saveCfg();
+  toast("Settings saved.");
+  if (repoChanged || S.loadError) loadAll();
+});
+
+async function testConnection() {
+  const form = $("#settingsForm");
+  if (form) for (const k of ["owner", "repo", "branch", "token"]) S.cfg[k] = String(new FormData(form).get(k) || "").trim();
+  try {
+    const r = await gh("");
+    if (!S.cfg.token) toast("Repository found, but no token: you can view content but not publish.", "error");
+    else if (r.permissions && r.permissions.push) toast("✅ Connected. You can publish changes.");
+    else toast("The token can read but not write. Give it “Contents: Read and write”.", "error");
+  } catch (e) {
+    toast(e.message, "error");
+  }
+}
+
+window.addEventListener("beforeunload", (e) => {
+  if (dirtyFiles().length) { e.preventDefault(); e.returnValue = ""; }
+});
+
+if (!S.cfg.token) S.view = "settings";
+loadAll();
+</script>
+</body>
+</html>
