@@ -21,6 +21,11 @@
     .icon-btn.danger:hover { background: #FEF2F2; color: #B91C1C; }
     dialog::backdrop { background: rgba(17,24,39,.5); }
     .nav-item.active { background: #1F2937; color: #fff; }
+    .drag-handle { flex-shrink: 0; width: 2.5rem; display: flex; align-items: center; justify-content: center; color: #9CA3AF; font-size: 1.25rem; cursor: grab; touch-action: none; user-select: none; }
+    .drag-handle:hover { color: #374151; background: #F9FAFB; }
+    li.dragging { position: relative; z-index: 5; box-shadow: 0 10px 25px rgba(17,24,39,.18); outline: 2px solid #2563EB; outline-offset: -2px; }
+    li.dragging .drag-handle, body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
+    body.is-dragging { user-select: none; }
   </style>
 </head>
 <body class="antialiased text-gray-800">
@@ -265,7 +270,14 @@ async function gh(path, opts = {}, auth = true) {
   if (!r.ok) {
     let msg = r.statusText;
     try { msg = (await r.json()).message || msg; } catch {}
-    const e = new Error(`GitHub said: ${msg} (${r.status})`);
+    if (/rate limit/i.test(msg)) {
+      msg = auth && token
+        ? "GitHub's hourly request limit was reached. Wait a few minutes and try again."
+        : "GitHub's hourly limit for requests without a token was reached. Add your token in Settings (it raises the limit), then try again.";
+    } else {
+      msg = `GitHub said: ${msg} (${r.status})`;
+    }
+    const e = new Error(msg);
     e.status = r.status;
     throw e;
   }
@@ -338,7 +350,9 @@ async function watchDeploy(since) {
   const poll = async () => {
     if (Date.now() - since > 10 * 60 * 1000) { S.deploy = null; renderBar(); return; }
     try {
-      const j = await gh(`/actions/runs?branch=${encodeURIComponent(S.cfg.branch)}&per_page=1`, {}, false);
+      const q = `/actions/runs?branch=${encodeURIComponent(S.cfg.branch)}&per_page=1`;
+      // Use the token (higher rate limit); fall back to anonymous if it can't read Actions.
+      const j = await gh(q).catch(() => gh(q, {}, false));
       const run = j.workflow_runs && j.workflow_runs[0];
       if (run && new Date(run.created_at).getTime() > since - 60000) {
         S.deploy.url = run.html_url;
@@ -351,7 +365,7 @@ async function watchDeploy(since) {
         renderBar();
       }
     } catch { /* ignore: status display only */ }
-    deployTimer = setTimeout(poll, 10000);
+    deployTimer = setTimeout(poll, 15000);
   };
   deployTimer = setTimeout(poll, 8000);
 }
@@ -435,7 +449,9 @@ function renderView() {
   const items = list.map((it, i) => {
     const s = col.summary(it);
     const extra = (col.actions || []).map((a) => `<button class="icon-btn font-semibold ${a.cls || ""}" data-act="${a.act}" data-i="${i}">${esc(a.label)}</button>`).join("");
-    return `<li class="p-4 md:px-6 flex flex-col sm:flex-row sm:items-start gap-3 justify-between">
+    return `<li data-row="${i}" class="flex items-stretch bg-white">
+      <button type="button" class="drag-handle" data-drag="${i}" aria-label="Drag to reorder" title="Drag to reorder">⠿</button>
+      <div class="flex-1 min-w-0 py-4 pr-4 md:pr-6 flex flex-col sm:flex-row sm:items-start gap-3 justify-between">
       <div class="min-w-0">
         ${s.badge ? `<span class="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mb-1.5">${esc(s.badge)}</span>` : ""}
         <p class="text-sm font-medium text-gray-900">${s.star ? '<span class="text-amber-500" title="Shown on homepage">★ </span>' : ""}${esc(s.title)}</p>
@@ -447,13 +463,13 @@ function renderView() {
         <button class="icon-btn" data-act="up" data-i="${i}" title="Move up" ${i === 0 ? "disabled" : ""}>↑</button>
         <button class="icon-btn" data-act="down" data-i="${i}" title="Move down" ${i === list.length - 1 ? "disabled" : ""}>↓</button>
         <button class="icon-btn danger" data-act="delete" data-i="${i}">Delete</button>
-      </div></li>`;
+      </div></div></li>`;
   }).join("");
 
   v.innerHTML = header + `<div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
     ${list.length ? `<ul class="divide-y divide-gray-200">${items}</ul>` : `<p class="p-6 text-sm text-gray-500">Nothing here yet.</p>`}
   </div>
-  <p class="mt-6 text-xs text-gray-400">Order here is the order on the website. <button class="underline" data-act="reload">Reload from GitHub</button></p>`;
+  <p class="mt-6 text-xs text-gray-400">Order here is the order on the website — drag ⠿ to reorder. <button class="underline" data-act="reload">Reload from GitHub</button></p>`;
 }
 
 function settingsHTML() {
@@ -691,12 +707,107 @@ async function testConnection() {
   }
 }
 
+/* ------------------------------------------------------------------ */
+/*  Drag and drop reordering (mouse, touch and pen via pointer events) */
+/* ------------------------------------------------------------------ */
+
+let drag = null; // { li, ul, from, pointerId, y, raf }
+
+function moveItem(from, to) {
+  const col = byId[S.view];
+  const list = getList(col);
+  if (!list || from === to || to < 0 || to >= list.length) return false;
+  const [it] = list.splice(from, 1);
+  list.splice(to, 0, it);
+  S.log.push(`Reorder ${col.label.toLowerCase()}`);
+  return true;
+}
+
+// Swap the dragged row past neighbours whose midpoint the pointer has crossed.
+function dragReposition() {
+  const { li, ul, y } = drag;
+  for (;;) {
+    const prev = li.previousElementSibling;
+    const next = li.nextElementSibling;
+    if (prev) {
+      const r = prev.getBoundingClientRect();
+      if (y < r.top + r.height / 2) { ul.insertBefore(li, prev); continue; }
+    }
+    if (next) {
+      const r = next.getBoundingClientRect();
+      if (y > r.top + r.height / 2) { ul.insertBefore(next, li); continue; }
+    }
+    break;
+  }
+}
+
+// Scroll the page while dragging near the top or bottom edge.
+function dragAutoScroll() {
+  cancelAnimationFrame(drag.raf);
+  const step = () => {
+    if (!drag) return;
+    const edge = 80, h = window.innerHeight, y = drag.y;
+    const dy = y < edge ? -(edge - y) / 4 : y > h - edge ? (y - (h - edge)) / 4 : 0;
+    if (!dy) return;
+    window.scrollBy(0, dy);
+    dragReposition();
+    drag.raf = requestAnimationFrame(step);
+  };
+  drag.raf = requestAnimationFrame(step);
+}
+
+document.addEventListener("pointerdown", (e) => {
+  const handle = e.target.closest("[data-drag]");
+  if (!handle || e.button > 0) return;
+  const li = handle.closest("li[data-row]");
+  e.preventDefault();
+  handle.setPointerCapture(e.pointerId);
+  drag = { li, ul: li.parentElement, from: Number(li.dataset.row), pointerId: e.pointerId, y: e.clientY, raf: 0 };
+  li.classList.add("dragging");
+  document.body.classList.add("is-dragging");
+});
+
+document.addEventListener("pointermove", (e) => {
+  if (!drag || e.pointerId !== drag.pointerId) return;
+  drag.y = e.clientY;
+  dragReposition();
+  dragAutoScroll();
+});
+
+function endDrag(e) {
+  if (!drag || e.pointerId !== drag.pointerId) return;
+  const { li, ul, from } = drag;
+  cancelAnimationFrame(drag.raf);
+  drag = null;
+  li.classList.remove("dragging");
+  document.body.classList.remove("is-dragging");
+  moveItem(from, [...ul.children].indexOf(li));
+  render();
+}
+document.addEventListener("pointerup", endDrag);
+document.addEventListener("pointercancel", endDrag);
+
+// Keyboard: focus the ⠿ handle and press ↑ / ↓.
+document.addEventListener("keydown", (e) => {
+  const handle = e.target.closest && e.target.closest("[data-drag]");
+  if (!handle || (e.key !== "ArrowUp" && e.key !== "ArrowDown")) return;
+  e.preventDefault();
+  const from = Number(handle.dataset.drag);
+  const to = from + (e.key === "ArrowUp" ? -1 : 1);
+  if (moveItem(from, to)) {
+    render();
+    const h = document.querySelector(`[data-drag="${to}"]`);
+    if (h) h.focus();
+  }
+});
+
 window.addEventListener("beforeunload", (e) => {
   if (dirtyFiles().length) { e.preventDefault(); e.returnValue = ""; }
 });
 
-if (!S.cfg.token) S.view = "settings";
-loadAll();
+// Without a token GitHub allows only 60 requests/hour, so don't load until one is saved.
+if (S.cfg.token) loadAll();
+else { S.view = "settings"; S.loadError = "Add your GitHub token in Settings to load your content."; render(); }
 </script>
 </body>
 </html>
