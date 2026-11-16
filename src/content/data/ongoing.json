@@ -1,5 +1,17 @@
 [
   {
+    "id": "satire",
+    "title": "“When Satire Becomes Generative”: Understanding Satirical Mediation in the Age of AI in the Global South",
+    "authors": [
+      "Anonymous"
+    ],
+    "status": "Planned for submission",
+    "venue": "ACM CHI Conference on Human Factors in Computing Systems (CHI 2027)",
+    "venueUrl": "https://chi2027.acm.org/",
+    "area": "Socio-technical Systems · Global South",
+    "description": "Ongoing work."
+  },
+  {
     "id": "sos",
     "title": "“Not Every SOS Means Call the Police”: Survivor Agency and Trauma-Informed Design Mandate",
     "authors": [
@@ -17,6 +29,22 @@
     "venueUrl": "https://chi2027.acm.org/",
     "area": "Trust, Safety & User Agency",
     "pdf": "https://drive.google.com/file/d/1huZeeyIkOGhQ-vVvnBtTlwFIPh6M23zq/view?usp=sharing"
+  },
+  {
+    "id": "p2p-trust",
+    "title": "Trust, Recognition, and Agency in Tech-Mediated Peer-to-Peer Communication within the Global South",
+    "authors": [
+      "Md Ishmam Tasin",
+      "Mehedi Hassan Alif",
+      "Sherajum Mysha",
+      "Md. Mehedi Hasan Shishir",
+      "Md. Sabbir Ahmed",
+      "Farida Chowdhury"
+    ],
+    "status": "To be submitted",
+    "venue": "ACM CHI Conference on Human Factors in Computing Systems (CHI 2027)",
+    "venueUrl": "https://chi2027.acm.org/",
+    "area": "Trust & Agency · Global South"
   },
   {
     "id": "trustchain",
@@ -50,6 +78,18 @@
     "venueUrl": "https://asiaccs2026.cse.iitkgp.ac.in/",
     "area": "Usable Security · Encryption",
     "pdf": "https://drive.google.com/file/d/1A3Ip-BbKK2u3kZn9mBsq-AeCgHSpvzXj/view?usp=sharing"
+  },
+  {
+    "id": "beyond-the-bait",
+    "title": "“Beyond the Bait”: Gamified Interventions for Phishing and SMiShing Awareness in Bangladesh's Evolving Cyber Ecosystem",
+    "authors": [
+      "Anonymous"
+    ],
+    "status": "Planned for submission",
+    "venue": "ACM CHI Conference on Human Factors in Computing Systems (CHI 2027)",
+    "venueUrl": "https://chi2027.acm.org/",
+    "area": "Security Awareness · Gamification",
+    "description": "Ongoing work."
   },
   {
     "id": "exiled-prince",
@@ -109,22 +149,6 @@
     "pdf": "https://drive.google.com/file/d/1Z9IHlZn-ZeDJHUFBIbA8dPOCI4tcFBjT/view?usp=sharing"
   },
   {
-    "id": "p2p-trust",
-    "title": "Trust, Recognition, and Agency in Tech-Mediated Peer-to-Peer Communication within the Global South",
-    "authors": [
-      "Md Ishmam Tasin",
-      "Mehedi Hassan Alif",
-      "Sherajum Mysha",
-      "Md. Mehedi Hasan Shishir",
-      "Md. Sabbir Ahmed",
-      "Farida Chowdhury"
-    ],
-    "status": "To be submitted",
-    "venue": "ACM CHI Conference on Human Factors in Computing Systems (CHI 2027)",
-    "venueUrl": "https://chi2027.acm.org/",
-    "area": "Trust & Agency · Global South"
-  },
-  {
     "id": "llm-trust",
     "title": "Usability, Privacy, and Trust in Large Language Models: Perspectives from Non-Technical Professionals in Academia, Banking, and Healthcare",
     "authors": [
@@ -140,29 +164,5 @@
     "venue": "ACM CHI Conference on Human Factors in Computing Systems (CHI 2027)",
     "venueUrl": "https://chi2027.acm.org/",
     "area": "Usable Privacy · Emerging Technologies"
-  },
-  {
-    "id": "satire",
-    "title": "“When Satire Becomes Generative”: Understanding Satirical Mediation in the Age of AI in the Global South",
-    "authors": [
-      "Anonymous"
-    ],
-    "status": "Planned for submission",
-    "venue": "ACM CHI Conference on Human Factors in Computing Systems (CHI 2027)",
-    "venueUrl": "https://chi2027.acm.org/",
-    "area": "Socio-technical Systems · Global South",
-    "description": "Ongoing work."
-  },
-  {
-    "id": "beyond-the-bait",
-    "title": "“Beyond the Bait”: Gamified Interventions for Phishing and SMiShing Awareness in Bangladesh's Evolving Cyber Ecosystem",
-    "authors": [
-      "Anonymous"
-    ],
-    "status": "Planned for submission",
-    "venue": "ACM CHI Conference on Human Factors in Computing Systems (CHI 2027)",
-    "venueUrl": "https://chi2027.acm.org/",
-    "area": "Security Awareness · Gamification",
-    "description": "Ongoing work."
   }
 ]
