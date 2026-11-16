@@ -1,7 +1,7 @@
 [
   {
     "id": "username-dapps-2026",
-    "title": "Why Can't I Just Use a Username? Understanding Why Users Struggle with Messaging DApps",
+    "title": "Why Can’t I Just Use a Username? Understanding Why Users Struggle with Messaging DApps",
     "authors": [
       "Tithi Saha*",
       "Md Ishmam Tasin*",
@@ -11,7 +11,7 @@
     ],
     "authorNote": "* denotes equal contribution",
     "year": 2026,
-    "venue": "The 8th IEEE International Conference on Decentralized Applications and Infrastructures (IEEE DAPPS 2026)",
+    "venue": "8th IEEE International Conference on Decentralized Applications and Infrastructures (IEEE DAPPS 2026)",
     "venueShort": "IEEE DAPPS 2026",
     "type": "Conference",
     "status": "Accepted",
@@ -73,14 +73,14 @@
       "Yousuf Abdullah Harun",
       "Asiful Islam Chowdhury",
       "Nurshida Akter Nilima",
-      "Hafsah Bintey Alim",
+      "Hafsa Bintey Alim",
       "Ashfiqun Ahmed Miftah",
       "Md Ishmam Tasin",
       "S M Taiabul Haque",
       "Farida Chowdhury"
     ],
     "year": 2026,
-    "venue": "ACM SIGCAS/SIGCHI Conference on Computing and Sustainable Societies (COMPASS 2026)",
+    "venue": "Conference on Computing and Sustainable Societies (COMPASS 2026)",
     "venueShort": "COMPASS 2026",
     "type": "Conference",
     "status": "To appear",
@@ -91,7 +91,7 @@
   },
   {
     "id": "ar-atm-ieee-access",
-    "title": "A Secure Augmented Reality (AR) Based Authentication Mechanism For ATM",
+    "title": "A Secure Augmented Reality (AR) Based Authentication Mechanism for ATM",
     "authors": [
       "Touhid Islam Udoy",
       "Md Yeasin Ali",
@@ -117,7 +117,7 @@
   },
   {
     "id": "cyber-maze-chira-2025",
-    "title": "Navigating the Cybersecurity Maze: Women's Practices, Awareness and Vulnerabilities in Bangladesh",
+    "title": "Navigating the Cybersecurity Maze: Women’s Practices, Awareness and Vulnerabilities in Bangladesh",
     "authors": [
       "Maliha Tasnim",
       "Maisha Tasnim",
