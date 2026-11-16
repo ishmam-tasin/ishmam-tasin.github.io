@@ -32,8 +32,7 @@
     "status": "Under review (2nd round)",
     "stage": "review",
     "venue": "ACM Conference on Computer-Supported Cooperative Work and Social Computing (CSCW 2027)",
-    "area": "Trust & Agency · Global South",
-    "pdf": "/papers/blood-donation-cscw2027.pdf"
+    "area": "Trust & Agency · Global South"
   },
   {
     "id": "trustchain",
@@ -48,8 +47,7 @@
     "status": "Submitted",
     "stage": "review",
     "venue": "10th Symposium on Distributed Ledger Technology (SDLT ’26)",
-    "area": "Decentralized Systems · Financial Inclusion",
-    "pdf": "https://drive.google.com/file/d/1HDBz3177qPlPlmhnd3xgJymPSpq8vUIZ/view?usp=sharing"
+    "area": "Decentralized Systems · Financial Inclusion"
   },
   {
     "id": "sos",
@@ -67,8 +65,7 @@
     "status": "Under review (2nd round)",
     "stage": "review",
     "venue": "ACM Conference on Computer-Supported Cooperative Work and Social Computing (CSCW 2027)",
-    "area": "Trust, Safety & User Agency",
-    "pdf": "https://drive.google.com/file/d/1huZeeyIkOGhQ-vVvnBtTlwFIPh6M23zq/view?usp=sharing"
+    "area": "Trust, Safety & User Agency"
   },
   {
     "id": "johnny",
@@ -85,8 +82,7 @@
     "stage": "review",
     "venue": "21st ACM ASIA Conference on Computer and Communications Security (ACM ASIACCS 2026)",
     "venueUrl": "https://asiaccs2026.cse.iitkgp.ac.in/",
-    "area": "Usable Security · Encryption",
-    "pdf": "https://drive.google.com/file/d/1A3Ip-BbKK2u3kZn9mBsq-AeCgHSpvzXj/view?usp=sharing"
+    "area": "Usable Security · Encryption"
   },
   {
     "id": "exiled-prince",
@@ -105,8 +101,7 @@
     "stage": "review",
     "venue": "11th IEEE European Symposium on Security and Privacy (Euro S&P 2026)",
     "venueUrl": "https://eurosp2026.ieee-security.org",
-    "area": "Security Awareness · Gamification",
-    "pdf": "https://drive.google.com/file/d/1R6-LlavtxynLzE0PumkqY6DQzJtAUDYD/view?usp=sharing"
+    "area": "Security Awareness · Gamification"
   },
   {
     "id": "llm-trust",
@@ -123,8 +118,7 @@
     "status": "Under review",
     "stage": "review",
     "venue": "ACM SIGIR Conference on Human Information Interaction and Retrieval (CHIIR 2027)",
-    "area": "Usable Privacy · Emerging Technologies",
-    "pdf": "/papers/llm-trust-chiir2027.pdf"
+    "area": "Usable Privacy · Emerging Technologies"
   },
   {
     "id": "rationality",
