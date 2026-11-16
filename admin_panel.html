@@ -236,8 +236,8 @@ function setPath(o, k, v) {
 }
 function slugify(s) { return String(s).toLowerCase().normalize("NFKD").replace(/[^\w\s-]/g, "").trim().replace(/[\s_]+/g, "-").replace(/-+/g, "-").slice(0, 50) || "item"; }
 
-function b64encode(str) {
-  const bytes = new TextEncoder().encode(str);
+function b64encode(str) { return bytesToB64(new TextEncoder().encode(str)); }
+function bytesToB64(bytes) {
   let bin = "";
   for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
   return btoa(bin);
@@ -388,6 +388,7 @@ function renderNav() {
     if (c.group) html += `<p class="hidden md:block px-4 pt-4 pb-1 text-[11px] uppercase tracking-wider text-gray-500">${esc(c.group)}</p>`;
     html += navItem(c.id, c.label, isDirty(c.file) && JSON.stringify(getList(c)) !== JSON.stringify(origList(c)));
   }
+  html += `<p class="hidden md:block px-4 pt-4 pb-1 text-[11px] uppercase tracking-wider text-gray-500">Files</p>` + navItem("cv", "CV (PDF)", false);
   html += `<div class="md:mt-auto md:pt-4"></div>` + navItem("settings", "⚙ Settings", false);
   $("#nav").innerHTML = html;
 }
@@ -431,6 +432,7 @@ function renderBar() {
 function renderView() {
   const v = $("#view");
   if (S.view === "settings") { v.innerHTML = settingsHTML(); return; }
+  if (S.view === "cv") { v.innerHTML = cvHTML(); return; }
   const col = byId[S.view];
   const header = `<div class="flex flex-wrap items-start justify-between gap-4 mb-6">
       <div><h2 class="text-2xl font-semibold text-gray-900">${esc(col.label)}</h2>
@@ -470,6 +472,72 @@ function renderView() {
     ${list.length ? `<ul class="divide-y divide-gray-200">${items}</ul>` : `<p class="p-6 text-sm text-gray-500">Nothing here yet.</p>`}
   </div>
   <p class="mt-6 text-xs text-gray-400">Order here is the order on the website — drag ⠿ to reorder. <button class="underline" data-act="reload">Reload from GitHub</button></p>`;
+}
+
+/* ------------------------------------------------------------------ */
+/*  CV upload                                                         */
+/* ------------------------------------------------------------------ */
+
+// The site serves the CV from public/ (see src/assets/cv.pdf.asset.json).
+const CV_REPO_PATH = "public/Md_Ishmam_Tasin_CV.pdf";
+const CV_SITE_PATH = "/Md_Ishmam_Tasin_CV.pdf";
+const CV_MAX_MB = 20;
+
+function cvHTML() {
+  return `<h2 class="text-2xl font-semibold text-gray-900">CV (PDF)</h2>
+  <p class="text-sm text-gray-500 mt-1 mb-6 max-w-2xl">The CV opens from the navbar, the homepage “Download CV” button and the footer. Uploading a new PDF replaces it everywhere.</p>
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-5">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <p class="text-sm font-medium text-gray-900">Current CV</p>
+        <p class="text-xs text-gray-500">${esc(CV_SITE_PATH.slice(1))}${S.cvUploaded ? ` · just replaced with “${esc(S.cvUploaded)}”` : ""}</p>
+      </div>
+      <a class="btn btn-light" href="${CV_SITE_PATH}" target="_blank" rel="noopener">Open current CV ↗</a>
+    </div>
+    <hr>
+    <label class="block">
+      <span class="block text-sm font-medium text-gray-700 mb-1">Upload a new CV</span>
+      <input id="cvFile" type="file" accept="application/pdf,.pdf" class="block w-full text-sm text-gray-700 file:mr-3 file:rounded-md file:border-0 file:bg-gray-100 file:px-4 file:py-2 file:text-sm file:font-semibold hover:file:bg-gray-200" ${S.cvBusy ? "disabled" : ""}>
+      <span class="block text-xs text-gray-500 mt-1">PDF only, up to ${CV_MAX_MB} MB. Any file name is fine; it is saved as ${esc(CV_SITE_PATH.slice(1))} so existing links keep working.</span>
+    </label>
+    <div class="flex justify-end">
+      <button class="btn btn-green" data-act="cv-upload" ${S.cvBusy ? "disabled" : ""}>${S.cvBusy ? "Uploading…" : "Upload and publish"}</button>
+    </div>
+  </div>
+  <p class="mt-4 text-xs text-gray-400">This publishes right away (separately from other unpublished edits). The new CV is live in about 2 minutes; browsers that opened the old one may need a refresh.</p>`;
+}
+
+async function uploadCv() {
+  const file = $("#cvFile") && $("#cvFile").files[0];
+  if (!file) { toast("Choose a PDF file first.", "error"); return; }
+  if (!S.cfg.token) { toast("Add your GitHub token in Settings first.", "error"); S.view = "settings"; render(); return; }
+  if (file.size > CV_MAX_MB * 1024 * 1024) { toast(`That file is larger than ${CV_MAX_MB} MB.`, "error"); return; }
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  if (String.fromCharCode(...bytes.subarray(0, 5)) !== "%PDF-") { toast("That file isn't a PDF.", "error"); return; }
+  if (!confirm(`Replace the CV on your website with “${file.name}”?`)) return;
+
+  S.cvBusy = true;
+  renderView();
+  try {
+    let sha;
+    try {
+      sha = (await gh(`/contents/${CV_REPO_PATH}?ref=${encodeURIComponent(S.cfg.branch)}`)).sha;
+    } catch (e) {
+      if (e.status !== 404) throw e; // 404 = no CV yet, create it
+    }
+    await gh(`/contents/${CV_REPO_PATH}`, {
+      method: "PUT",
+      body: JSON.stringify({ message: `Admin: update CV (${file.name})`, content: bytesToB64(bytes), sha, branch: S.cfg.branch }),
+    });
+    S.cvUploaded = file.name;
+    toast("CV uploaded! It will be live in about 2 minutes.");
+    watchDeploy(Date.now());
+  } catch (e) {
+    toast(e.message, "error");
+  } finally {
+    S.cvBusy = false;
+    renderView();
+  }
 }
 
 function settingsHTML() {
@@ -680,6 +748,7 @@ document.addEventListener("click", (e) => {
     case "hide-deploy": S.deploy = null; clearTimeout(deployTimer); renderBar(); break;
     case "forget": S.cfg.token = ""; saveCfg(); render(); toast("Token removed from this browser."); break;
     case "test": testConnection(); break;
+    case "cv-upload": uploadCv(); break;
   }
 });
 
