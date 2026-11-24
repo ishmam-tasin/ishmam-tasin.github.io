@@ -83,7 +83,7 @@ const IMAGE_HELP = "Optional. A full image URL, or a file you added to the site'
 
 const COLLECTIONS = [
   {
-    id: "news", label: "Recent News", file: DATA + "news.json", addToTop: true,
+    id: "news", label: "Recent Updates", file: DATA + "news.json", addToTop: true,
     hint: "Shown on the homepage, newest first. New items are added at the top.",
     fields: [
       { key: "date", label: "Date", required: true, placeholder: "Nov 16, 2026" },
@@ -890,7 +890,7 @@ function promote(i) {
       const date = d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
       getList(byId.news).unshift({ date, text: `“${pub.title}” accepted at ${pub.venueShort || pub.venue}.`, to: "/publications" });
       S.log.push(`Add recent news: ${short(pub.title)}`);
-      toast("Added to Publications and Recent News. Edit the news text if you like, then Publish.");
+      toast("Added to Publications and Recent Updates. Edit the news text if you like, then Publish.");
     } else {
       toast("Moved to Publications. Click “Publish to website” when ready.");
     }

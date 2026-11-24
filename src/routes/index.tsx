@@ -104,10 +104,10 @@ function Index() {
           </ul>
         </div>
 
-        {/* Recent News — right of the bio on wide screens, below it on smaller ones */}
+        {/* Recent Updates — right of the bio on wide screens, below it on smaller ones */}
         <aside id="news" aria-labelledby="news-title" className="md:col-span-2 lg:col-span-1">
           <h2 id="news-title" className="mb-4 border-b pb-3 text-2xl md:text-[1.75rem]">
-            Recent News
+            Recent Updates
           </h2>
           <div className="rounded-xl border border-[#e8e6df] bg-[#F6F5F1] p-5 shadow-sm dark:border-border dark:bg-muted/30">
             <ul className="custom-scrollbar max-h-70 space-y-4 overflow-y-auto pr-3 text-[0.95rem] lg:max-h-120">
