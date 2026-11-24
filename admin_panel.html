@@ -591,7 +591,8 @@ async function loadVisitors() {
   const range = { start: hourIso(start), end: hourIso(end) };
   try {
     // GoatCounter allows ~4 API requests a second, so go one at a time.
-    const total = await gcApi("/stats/total", range); await sleep(300);
+    // /stats/total answers 404 while a site has no data yet; it's only a fallback here, so don't fail on it.
+    const total = await gcApi("/stats/total", range).catch(() => ({})); await sleep(300);
     const hits = await gcApi("/stats/hits", { ...range, limit: 100, group: "day" }); await sleep(300);
     const refs = await gcApi("/stats/toprefs", { ...range, limit: 50 }); await sleep(300);
     const locs = await gcApi("/stats/locations", { ...range, limit: 50 });
