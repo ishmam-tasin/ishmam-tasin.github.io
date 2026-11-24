@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
+import { Analytics } from "@/components/site/Analytics";
 import { links, profile, seo } from "@/content/site";
 
 function NotFoundComponent() {
@@ -156,6 +157,7 @@ function RootComponent() {
         <Outlet />
       </main>
       <SiteFooter />
+      <Analytics />
     </QueryClientProvider>
   );
 }

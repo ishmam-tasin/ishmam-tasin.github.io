@@ -388,6 +388,7 @@ function renderNav() {
     if (c.group) html += `<p class="hidden md:block px-4 pt-4 pb-1 text-[11px] uppercase tracking-wider text-gray-500">${esc(c.group)}</p>`;
     html += navItem(c.id, c.label, isDirty(c.file) && JSON.stringify(getList(c)) !== JSON.stringify(origList(c)));
   }
+  html += `<p class="hidden md:block px-4 pt-4 pb-1 text-[11px] uppercase tracking-wider text-gray-500">Insights</p>` + navItem("visitors", "Visitors", false);
   html += `<p class="hidden md:block px-4 pt-4 pb-1 text-[11px] uppercase tracking-wider text-gray-500">Files</p>` + navItem("cv", "CV (PDF)", false);
   html += `<div class="md:mt-auto md:pt-4"></div>` + navItem("settings", "⚙ Settings", false);
   $("#nav").innerHTML = html;
@@ -433,6 +434,7 @@ function renderView() {
   const v = $("#view");
   if (S.view === "settings") { v.innerHTML = settingsHTML(); return; }
   if (S.view === "cv") { v.innerHTML = cvHTML(); return; }
+  if (S.view === "visitors") { v.innerHTML = visitorsHTML(); if (!GC.data && !GC.loading && !GC.error && S.cfg.gcCode && S.cfg.gcToken) loadVisitors(); return; }
   const col = byId[S.view];
   const header = `<div class="flex flex-wrap items-start justify-between gap-4 mb-6">
       <div><h2 class="text-2xl font-semibold text-gray-900">${esc(col.label)}</h2>
@@ -538,6 +540,200 @@ async function uploadCv() {
     S.cvBusy = false;
     renderView();
   }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Visitors (GoatCounter)                                            */
+/* ------------------------------------------------------------------ */
+
+// The website reads its GoatCounter site code from this file (see src/components/site/Analytics.tsx).
+const GC_FILE = "src/content/data/analytics.json";
+const GC = { days: 30, data: null, loading: false, error: null, published: undefined, showSetup: false };
+const ACADEMIC_RE = /universit|universidad|universität|université|college|institut|polytechnic|school|academ|research|laborator|campus|\bedu\b|\.edu\b|\.ac\.[a-z]{2}\b|eduroam|\bcern\b|\bnren\b|\bjanet\b|internet2|\bdfn\b|renater|\bgéant|\bgeant/i;
+
+function skippingOwnVisits() { try { return localStorage.getItem("skipgc") === "t"; } catch { return false; } }
+function setSkipOwnVisits(on) {
+  try { on ? localStorage.setItem("skipgc", "t") : localStorage.removeItem("skipgc"); } catch {}
+  toast(on ? "Your visits from this browser won't be counted." : "Your visits from this browser will be counted again.");
+}
+
+async function gcApi(path, params = {}) {
+  const url = new URL(`https://${S.cfg.gcCode}.goatcounter.com/api/v0${path}`);
+  for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
+  let r;
+  try {
+    r = await fetch(url, { headers: { Authorization: `Bearer ${S.cfg.gcToken}`, "Content-Type": "application/json" }, cache: "no-store" });
+  } catch {
+    throw new Error(`Couldn't reach ${S.cfg.gcCode}.goatcounter.com. Check the site code (and that an ad blocker isn't blocking GoatCounter on this page).`);
+  }
+  if (!r.ok) {
+    let msg = r.statusText;
+    try { const j = await r.json(); msg = j.error || (j.errors && JSON.stringify(j.errors)) || msg; } catch {}
+    if (r.status === 401 || r.status === 403) msg = "GoatCounter rejected the API token. Create one with the “Read statistics” permission.";
+    else if (r.status === 404) msg = `No GoatCounter site called “${S.cfg.gcCode}”. Check the site code.`;
+    else if (r.status === 429) msg = "GoatCounter's rate limit was hit. Wait a few seconds and press Refresh.";
+    else msg = `GoatCounter said: ${msg} (${r.status})`;
+    throw new Error(msg);
+  }
+  return r.json();
+}
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const hourIso = (d) => d.toISOString().slice(0, 13) + ":00:00Z";
+const cnt = (x) => Number(x.count ?? x.count_unique ?? 0);
+
+async function loadVisitors() {
+  if (!S.cfg.gcCode || !S.cfg.gcToken) { renderView(); return; }
+  GC.loading = true; GC.error = null; renderView();
+  // The API wants RFC 3339 times rounded to the hour.
+  const end = new Date(); end.setUTCMinutes(0, 0, 0); end.setUTCHours(end.getUTCHours() + 1);
+  const start = new Date(end.getTime() - GC.days * 864e5);
+  const range = { start: hourIso(start), end: hourIso(end) };
+  try {
+    // GoatCounter allows ~4 API requests a second, so go one at a time.
+    const total = await gcApi("/stats/total", range); await sleep(300);
+    const hits = await gcApi("/stats/hits", { ...range, limit: 100, group: "day" }); await sleep(300);
+    const refs = await gcApi("/stats/toprefs", { ...range, limit: 50 }); await sleep(300);
+    const locs = await gcApi("/stats/locations", { ...range, limit: 50 });
+    GC.data = { total, hits: hits.hits || [], refs: refs.stats || [], locs: locs.stats || [] };
+  } catch (e) {
+    GC.error = e.message;
+  } finally {
+    GC.loading = false;
+    if (S.view === "visitors") renderView();
+  }
+  if (GC.published === undefined && S.cfg.token) {
+    gh(`/contents/${GC_FILE}?ref=${encodeURIComponent(S.cfg.branch)}`)
+      .then((j) => { GC.published = JSON.parse(b64decode(j.content)).goatcounter || ""; GC.publishedSha = j.sha; })
+      .catch(() => { GC.published = null; })
+      .finally(() => { if (S.view === "visitors") renderView(); });
+  }
+}
+
+async function publishGcCode() {
+  if (!S.cfg.token) { toast("Add your GitHub token in Settings first.", "error"); return; }
+  if (!S.cfg.gcCode) { toast("Enter your GoatCounter site code first.", "error"); return; }
+  try {
+    let sha;
+    try { sha = (await gh(`/contents/${GC_FILE}?ref=${encodeURIComponent(S.cfg.branch)}`)).sha; } catch (e) { if (e.status !== 404) throw e; }
+    await gh(`/contents/${GC_FILE}`, {
+      method: "PUT",
+      body: JSON.stringify({ message: `Admin: connect GoatCounter (${S.cfg.gcCode})`, content: b64encode(JSON.stringify({ goatcounter: S.cfg.gcCode }, null, 2) + "\n"), sha, branch: S.cfg.branch }),
+    });
+    GC.published = S.cfg.gcCode;
+    toast("Connected! Counting starts once the site finishes updating (about 2 minutes).");
+    watchDeploy(Date.now());
+    renderView();
+  } catch (e) {
+    toast(e.message, "error");
+  }
+}
+
+function barList(rows, { empty, highlight } = {}) {
+  if (!rows.length) return `<p class="p-4 text-sm text-gray-500">${esc(empty || "No data yet.")}</p>`;
+  const max = Math.max(...rows.map((r) => r.n), 1);
+  return `<ul class="divide-y divide-gray-100">${rows.map((r) => `
+    <li class="relative px-4 py-2 text-sm flex items-center justify-between gap-3">
+      <span class="absolute inset-y-0 left-0 ${highlight && highlight(r) ? "bg-emerald-100" : "bg-blue-50"}" style="width:${(r.n / max) * 100}%"></span>
+      <span class="relative min-w-0"><span class="block truncate text-gray-900">${esc(r.label)}</span>${r.sub ? `<span class="block truncate text-xs text-gray-500">${esc(r.sub)}</span>` : ""}</span>
+      <span class="relative shrink-0 font-semibold tabular-nums text-gray-700">${r.n.toLocaleString()}</span>
+    </li>`).join("")}</ul>`;
+}
+
+function card(title, body, note) {
+  return `<section class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <div class="px-4 py-3 border-b border-gray-100"><h3 class="font-semibold text-gray-900">${esc(title)}</h3>${note ? `<p class="text-xs text-gray-500 mt-0.5">${note}</p>` : ""}</div>
+    <div class="max-h-96 overflow-y-auto">${body}</div></section>`;
+}
+
+function visitorsSetupHTML() {
+  const c = S.cfg;
+  return `<form id="gcForm" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-4">
+    <div class="grid sm:grid-cols-2 gap-4">
+      <label class="block"><span class="block text-sm font-medium mb-1">GoatCounter site code</span>
+        <div class="flex items-center"><span class="text-sm text-gray-500 mr-1">https://</span><input class="inp" name="gcCode" value="${esc(c.gcCode || "")}" placeholder="ishmamtasin" required><span class="text-sm text-gray-500 ml-1">.goatcounter.com</span></div></label>
+      <label class="block"><span class="block text-sm font-medium mb-1">GoatCounter API token</span>
+        <input class="inp font-mono" type="password" name="gcToken" value="${esc(c.gcToken || "")}" autocomplete="off" required>
+        <span class="block text-xs text-gray-500 mt-1">Saved only in this browser.</span></label>
+    </div>
+    <div class="flex justify-end"><button type="submit" class="btn btn-dark">Save</button></div>
+  </form>
+  <div class="mt-4 bg-white rounded-lg border border-gray-200 p-6 text-sm leading-relaxed">
+    <h3 class="font-semibold mb-2">One-time setup (about 3 minutes)</h3>
+    <ol class="list-decimal pl-5 space-y-1 text-gray-700">
+      <li>Sign up free at <a class="text-blue-700 underline" target="_blank" rel="noopener" href="https://www.goatcounter.com/signup">goatcounter.com/signup</a>. The <b>code</b> you pick becomes <code>code.goatcounter.com</code>.</li>
+      <li>In GoatCounter open <b>User → API</b>, create a key, tick <b>Read statistics</b>, and copy it.</li>
+      <li>Paste the code and the key above, then press <b>Save</b>.</li>
+      <li>Press <b>Connect website</b> (appears after saving). This adds the counter to your site; counting starts about 2 minutes later.</li>
+    </ol>
+  </div>`;
+}
+
+function visitorsHTML() {
+  const head = `<div class="flex flex-wrap items-start justify-between gap-4 mb-6">
+    <div><h2 class="text-2xl font-semibold text-gray-900">Visitors</h2>
+    <p class="text-sm text-gray-500 mt-1 max-w-2xl">Visits, pages, countries, where people came from, and which organization's network they used (universities highlighted).</p></div>
+    ${S.cfg.gcCode && S.cfg.gcToken ? `<div class="flex flex-wrap gap-2">
+      ${[7, 30, 90, 365].map((d) => `<button class="btn ${GC.days === d ? "btn-dark" : "btn-light"}" data-act="gc-range" data-days="${d}">${d === 365 ? "1 year" : d + " days"}</button>`).join("")}
+      <button class="btn btn-light" data-act="gc-refresh" ${GC.loading ? "disabled" : ""}>↻ Refresh</button>
+    </div>` : ""}</div>`;
+
+  if (!S.cfg.gcCode || !S.cfg.gcToken || GC.showSetup) return head + visitorsSetupHTML();
+
+  const notConnected = GC.published !== undefined && GC.published !== null && GC.published !== S.cfg.gcCode;
+  const banner = notConnected ? `<div class="mb-6 rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 flex flex-wrap items-center justify-between gap-3">
+      <span><b>The website isn't counting yet.</b> ${GC.published ? `It currently reports to “${esc(GC.published)}”.` : "Connect it to start counting visits."}</span>
+      <button class="btn btn-green" data-act="gc-publish-code">Connect website</button></div>` : "";
+  const footer = `<div class="mt-6 flex flex-wrap items-center justify-between gap-3 text-xs text-gray-500">
+    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="size-4" data-act="gc-skip" ${skippingOwnVisits() ? "checked" : ""}> Don't count my own visits from this browser</label>
+    <span class="flex gap-3"><a class="underline" target="_blank" rel="noopener" href="https://${esc(S.cfg.gcCode)}.goatcounter.com">Open full GoatCounter dashboard ↗</a>
+    <button class="underline" data-act="gc-setup">Change GoatCounter settings</button></span></div>`;
+
+  if (GC.error) return head + banner + `<div class="rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-800"><p class="font-semibold">Couldn't load visitor stats.</p><p class="mt-1">${esc(GC.error)}</p></div>` + footer;
+  if (!GC.data) return head + banner + `<p class="text-sm text-gray-500">Loading visitor stats…</p>` + footer;
+
+  const { total, hits, refs, locs } = GC.data;
+  const pages = hits.filter((h) => !h.event);
+  const orgs = hits.filter((h) => h.event && String(h.path).startsWith("org: ")).map((h) => {
+    const [name, cc] = String(h.path).slice(5).split(" · ");
+    return { label: name + (cc ? ` (${cc})` : ""), sub: h.title && h.title !== name ? h.title : "", n: cnt(h), academic: ACADEMIC_RE.test(name + " " + (h.title || "")) };
+  });
+  const academic = orgs.filter((o) => o.academic), otherOrgs = orgs.filter((o) => !o.academic);
+  const siteHost = location.host;
+  const refRows = refs.filter((r) => !r.name || !String(r.name).includes(siteHost))
+    .map((r) => ({ label: r.name || "Direct / unknown", n: cnt(r) }));
+  // Page views only — the once-per-visit "org:" events are not visits.
+  const perDay = new Map();
+  for (const p of pages) for (const s of p.stats || []) perDay.set(s.day, (perDay.get(s.day) || 0) + Number(s.daily || 0));
+  if (!perDay.size) for (const s of total.stats || []) perDay.set(s.day, Number(s.daily || 0));
+  const days = [...perDay].sort((a, b) => (a[0] < b[0] ? -1 : 1)).map(([day, n]) => ({ day, n }));
+  const maxDay = Math.max(...days.map((d) => d.n), 1);
+  const visits = pages.length ? pages.reduce((a, p) => a + cnt(p), 0) : Number(total.total || 0) - Number(total.total_events || 0);
+
+  const chart = days.length ? `<div class="flex items-end gap-px h-24 mt-4" title="Visits per day">${days.map((d) =>
+    `<div class="flex-1 bg-blue-500/80 hover:bg-blue-700 rounded-t-sm" style="height:${Math.max((d.n / maxDay) * 100, d.n ? 4 : 1)}%" title="${esc(d.day)}: ${d.n}"></div>`).join("")}</div>
+    <div class="flex justify-between text-[11px] text-gray-400 mt-1"><span>${esc(days[0].day)}</span><span>${esc(days[days.length - 1].day)}</span></div>` : "";
+
+  const stat = (label, value) => `<div><p class="text-xs uppercase tracking-wider text-gray-500">${label}</p><p class="text-3xl font-semibold text-gray-900 tabular-nums">${Number(value).toLocaleString()}</p></div>`;
+
+  return head + banner + `
+    <section class="bg-white rounded-lg shadow-sm border border-gray-200 p-5 mb-6">
+      <div class="flex flex-wrap gap-10">
+        ${stat(`Visits · last ${GC.days === 365 ? "year" : GC.days + " days"}`, visits)}
+        ${stat("Countries", locs.length)}
+        ${stat("Organizations", orgs.length)}
+        ${stat("Universities & research", academic.length)}
+      </div>${chart}
+    </section>
+    <div class="grid lg:grid-cols-2 gap-6">
+      ${card("🎓 Universities & research networks", barList(academic, { empty: "No visits from university or research networks yet.", highlight: () => true }),
+        "Detected from the visitor's network. Works when they browse on campus Wi-Fi/eduroam; at home it shows their internet provider instead.")}
+      ${card("Pages", barList(pages.map((p) => ({ label: p.path, sub: p.title && p.title !== p.path ? p.title : "", n: cnt(p) })), { empty: "No page views yet." }))}
+      ${card("Countries", barList(locs.map((l) => ({ label: l.name || l.id || "Unknown", n: cnt(l) })), { empty: "No visits yet." }))}
+      ${card("Where visitors came from", barList(refRows, { empty: "No referrers yet." }), "Search engines, LinkedIn, email links, etc.")}
+      <div class="lg:col-span-2">${card("Other networks (internet providers, companies)", barList(otherOrgs, { empty: "None yet." }),
+        "Counted once per visit. Includes the city and network domain when known.")}</div>
+    </div>` + footer;
 }
 
 function settingsHTML() {
@@ -749,10 +945,26 @@ document.addEventListener("click", (e) => {
     case "forget": S.cfg.token = ""; saveCfg(); render(); toast("Token removed from this browser."); break;
     case "test": testConnection(); break;
     case "cv-upload": uploadCv(); break;
+    case "gc-range": GC.days = Number(b.dataset.days); GC.data = null; loadVisitors(); break;
+    case "gc-refresh": GC.data = null; loadVisitors(); break;
+    case "gc-skip": setSkipOwnVisits(!skippingOwnVisits()); renderView(); break;
+    case "gc-publish-code": publishGcCode(); break;
+    case "gc-setup": GC.showSetup = !GC.showSetup; renderView(); break;
   }
 });
 
 document.addEventListener("submit", (e) => {
+  if (e.target.id === "gcForm") {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    S.cfg.gcCode = String(fd.get("gcCode") || "").trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\.goatcounter\.com.*$/, "");
+    S.cfg.gcToken = String(fd.get("gcToken") || "").trim();
+    saveCfg();
+    GC.data = null; GC.error = null; GC.showSetup = false;
+    toast("Saved.");
+    loadVisitors();
+    return;
+  }
   if (e.target.id !== "settingsForm") return;
   e.preventDefault();
   const fd = new FormData(e.target);
