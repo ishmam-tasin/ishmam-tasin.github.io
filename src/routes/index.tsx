@@ -37,7 +37,7 @@ function Index() {
     <div className="container-content">
       {/* Introduction */}
       <section
-        className="fade-in-up grid gap-8 py-12 md:grid-cols-[260px_1fr] md:gap-12 md:py-20"
+        className="fade-in-up grid gap-8 py-12 md:grid-cols-[260px_1fr] md:gap-12 md:py-20 lg:grid-cols-[230px_minmax(0,1fr)_minmax(0,330px)] lg:gap-10"
         aria-labelledby="intro-title"
       >
         <div className="flex flex-col gap-5">
@@ -48,7 +48,7 @@ function Index() {
             height={520}
             className="aspect-square w-full max-w-65 rounded-md border object-cover object-top"
           />
-          <div className="flex flex-col gap-3 max-w-65">
+          <div className="flex max-w-65 flex-col gap-3">
             <div className="inline-flex items-center justify-between gap-2 border border-border bg-card px-3 py-2 rounded text-[0.85rem] font-medium w-full shadow-sm">
               <div className="flex items-center gap-2 overflow-hidden text-muted-foreground">
                 <Mail className="shrink-0 size-4" />
@@ -103,6 +103,46 @@ function Index() {
             ))}
           </ul>
         </div>
+
+        {/* Recent News — right of the bio on wide screens, below it on smaller ones */}
+        <aside id="news" aria-labelledby="news-title" className="md:col-span-2 lg:col-span-1">
+          <h2 id="news-title" className="mb-4 border-b pb-3 text-2xl md:text-[1.75rem]">
+            Recent News
+          </h2>
+          <div className="rounded-xl border border-[#e8e6df] bg-[#F6F5F1] p-5 shadow-sm dark:border-border dark:bg-muted/30">
+            <ul className="custom-scrollbar max-h-70 space-y-4 overflow-y-auto pr-3 text-[0.95rem] lg:max-h-120">
+              {news.map((item, i) => (
+                <li key={i} className="flex gap-3">
+                  <span className="mt-0.5 shrink-0 text-lg text-foreground">•</span>
+                  <p>
+                    <strong className="font-medium text-[#b77b44] dark:text-[#d49b6a]">
+                      [{item.date}]
+                    </strong>{" "}
+                    {item.text}
+                    {item.to && (
+                      <Link
+                        to={item.to as NonNullable<LinkProps["to"]>}
+                        className="link-academic ml-1 text-sm whitespace-nowrap"
+                      >
+                        Read more
+                      </Link>
+                    )}
+                    {item.href && (
+                      <a
+                        href={item.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="link-academic ml-1 text-sm whitespace-nowrap"
+                      >
+                        Link
+                      </a>
+                    )}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </aside>
       </section>
 
       {/* Research */}
@@ -173,43 +213,6 @@ function Index() {
           {selectedPublications.map((p) => (
             <PublicationCard key={p.id} pub={p} />
           ))}
-        </div>
-      </Section>
-
-      {/* Recent News */}
-      <Section id="news" title="Recent News">
-        <div className="bg-[#F6F5F1] dark:bg-muted/30 border border-[#e8e6df] dark:border-border rounded-xl p-5 md:p-8 shadow-sm max-w-4xl">
-          <ul className="space-y-4 max-h-70 overflow-y-auto pr-4 custom-scrollbar text-[1rem]">
-            {news.map((item, i) => (
-              <li key={i} className="flex gap-4">
-                <span className="text-foreground shrink-0 mt-0.5 text-lg">•</span>
-                <p>
-                  <strong className="text-[#b77b44] dark:text-[#d49b6a] font-medium">
-                    [{item.date}]
-                  </strong>{" "}
-                  {item.text}
-                  {item.to && (
-                    <Link
-                      to={item.to as NonNullable<LinkProps["to"]>}
-                      className="link-academic text-sm whitespace-nowrap ml-1"
-                    >
-                      Read more
-                    </Link>
-                  )}
-                  {item.href && (
-                    <a
-                      href={item.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="link-academic text-sm whitespace-nowrap ml-1"
-                    >
-                      Link
-                    </a>
-                  )}
-                </p>
-              </li>
-            ))}
-          </ul>
         </div>
       </Section>
 
